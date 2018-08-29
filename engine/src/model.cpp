@@ -11,16 +11,15 @@ typedef vector<GRBVar3DArray>   GRBVar4DArray;
 
 using namespace std;
 
-unsigned int num_slots = 5;
-unsigned int num_rows = 40;
+unsigned int H = 20, W = 29;
+unsigned int num_slots = 4;
+unsigned int num_rows = 20;
 unsigned int num_forbidden_slots = 2;
 unsigned int BIG_M = 1000000;
-unsigned int res_req[] = {50, 160, 60, 125, 160, 8, 28, 24};
-unsigned int bram_req[] = {0, 0, 0, 0, 0, 0, 0, 0};
-unsigned int dsp_req[] = {0, 0, 0, 0, 0, 0, 0, 0};
-unsigned int fs [][4] = {{10, 1, 1, 2}, {15, 1, 1, 3}};
-
-unsigned int H = 100, W = 32;
+unsigned int res_req[] = {100, 50, 60, 125, 160, 8, 28, 24};
+unsigned int bram_req[] = {10, 10, 0, 0, 0, 0, 0, 0};
+unsigned int dsp_req[] = {16, 0, 0, 0, 0, 0, 0, 0};
+unsigned int fs [][4] = {{10, 0, 1, H}, {15, 0, 1, H}};
 unsigned int status, i ,k, j, l;
 
 unsigned int clb_max = 10000, clb_min = 1;
@@ -346,7 +345,7 @@ int solve_milp()
                mu[i][k] = 1 if x_i <= x_k  
         ***********************************************************************/
 
-        GRBVar2DArray mu (num_slots);
+        GRBVar2DArray mu (num_forbidden_slots);
         for(i = 0; i < num_forbidden_slots; i++) {
             GRBVarArray each_slot(num_slots);
             mu[i] = each_slot;
@@ -363,7 +362,7 @@ int solve_milp()
                    
                nu[i][k] = 1 if x_i <= x_k  
         ***********************************************************************/
-        GRBVar2DArray nu (num_slots);
+        GRBVar2DArray nu (num_forbidden_slots);
         for(i = 0; i < num_forbidden_slots; i++) {
             GRBVarArray each_slot(num_slots);
             nu[i] = each_slot;
@@ -426,7 +425,6 @@ int solve_milp()
          func: fbdn_4[i][k] = 1 iff forbidden slot 'i' x variable interferes 
                with slot 'k'
         ***********************************************************************/
-#endif
         GRBVar2DArray fbdn_4 (num_forbidden_slots);
         for(i = 0; i < num_forbidden_slots; i++) {
             GRBVarArray each_slot(num_slots);
@@ -435,7 +433,7 @@ int solve_milp()
             for(k = 0; k < num_slots; k++)
                 fbdn_4[i][k] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
         }
-
+#endif
  
         model.update();
         /********************************************************************
@@ -462,6 +460,8 @@ int solve_milp()
                 if(num_rows > 2)
                     model.addConstr(beta[i][k+1] >= beta[i][k] + beta[i][k+2] - 1, "5");
                 exp += beta[i][k];
+                //if(k >= 1)
+
             }
                 //model.addConstr(exp <= 5, "98");
         }
@@ -709,10 +709,13 @@ int solve_milp()
                 exp_res += tau[0][i][k];
                 exp_bram += tau[1][i][k];
            }
-            model.addConstr(exp_res >= res_req[i],"68"); 
+            model.addConstr(5 * exp_res >= res_req[i],"68"); 
+            model.addConstr((5 * exp_res) - res_req[i] <= 0.5 * res_req[i],"168"); 
             model.addConstr(exp_bram >= bram_req[i],"69");
+            //model.addConstr(exp_bram - bram_req[i] <= 0.8 * (bram_req[i]),"169");
 #ifdef dspp
-            model.addConstr(exp_dsp >= dsp_req[i],"70"); 
+            model.addConstr(2 * exp_dsp >= dsp_req[i],"70"); 
+            model.addConstr((2 * exp_dsp) - dsp_req[i] <= 0.9 * dsp_req[i], "170"); 
 #endif
         }
 
@@ -819,7 +822,7 @@ int solve_milp()
 
                     <<"\t" << clb[i][0].get(GRB_DoubleAttr_X) <<"\t" <<
                     clb[i][1].get(GRB_DoubleAttr_X) << "\t" << (clb[i][1].get(GRB_DoubleAttr_X) -
-                     clb[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) << "\t" << res_req[i]
+                     clb[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 5 << "\t" << res_req[i]
 
                     <<"\t" << bram[i][0].get(GRB_DoubleAttr_X) <<"\t" <<
                     bram[i][1].get(GRB_DoubleAttr_X) << "\t" << (bram[i][1].get(GRB_DoubleAttr_X) -
@@ -828,14 +831,14 @@ int solve_milp()
 #ifdef dspp
                     << "\t" << dsp[i][0].get(GRB_DoubleAttr_X) << "\t" <<
                     dsp[i][1].get(GRB_DoubleAttr_X) << "\t" << (dsp[i][1].get(GRB_DoubleAttr_X) -
-                            dsp[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) << "\t" << dsp_req[i] <<endl;
+                            dsp[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 2 << "\t" << dsp_req[i] <<endl;
 #else 
                    <<endl;
 #endif 
 
                     cout <<endl;
 //#ifdef pws
-/*
+
                 for(k=0; k < 2; k++) {
                     for(l = 0; l < 3; l++)
                      cout <<"z" << l << " " << z[0][i][k][l].get(GRB_DoubleAttr_X) << "\t";
@@ -844,8 +847,8 @@ int solve_milp()
 //#endif
                 for(k =0; k < num_rows; k++)
                     cout << "b"<< k << " " <<beta[i][k].get(GRB_DoubleAttr_X) << " " ;
-*/
- //               cout <<  endl;
+
+                               cout <<  endl;
             }
         }
     
