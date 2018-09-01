@@ -19,6 +19,8 @@ fp::fp(QWidget *parent) :
     fp::brush_background.setColor(Qt::black);
     paint_fp();
 
+    ui->tableWidget->setColumnCount(5);
+    ui->tableWidget->setRowCount(10);
 
     connect(ui->set_button, SIGNAL(released()), this, SLOT(set_pressed()));
     connect(ui->enter_button, SIGNAL(released()), this, SLOT(enter_pressed()));
@@ -39,6 +41,7 @@ void fp::init_gui()
     ui->comboBox->addItem("Virtex");
 }
 
+//this function first plots the FPGA visualizer
 void fp::paint_fp()
 {
     int i, j, k;
@@ -49,15 +52,13 @@ void fp::paint_fp()
     int bound, rec_height;
     bool is_bram = false, is_dsp = false, is_forbidden = false;
 
-
     QPen clk_reg_pen, rec_pen;
 
     Qt::GlobalColor colors [] = {Qt::GlobalColor::red, Qt::GlobalColor::magenta,
                                  Qt::GlobalColor::blue, Qt::GlobalColor::cyan,
                                  Qt::GlobalColor::yellow};
 
-    total_height = (zynq->clk_reg[0].bram_per_column +
-                      zynq->clk_reg[1].bram_per_column ) * bram_height;
+    total_height = zynq->num_rows * bram_height;
 
     for(i = 0; i < zynq->num_clk_reg ; i++) {
         clk_reg_width = zynq->clk_reg[i].clk_reg_pos.w * clb_width;
@@ -212,21 +213,25 @@ void fp::enter_pressed()
 
 void fp::start_pressed()
 {
-    //Vec2d fs_k = {{10, 0, 1, total_height}, {15, 0, 1, total_height}};
+    unsigned long m;
 
+    //send description of FPGA parameters and application parameters to optimizer
     param.num_slots = num_slots;
+    param.forbidden_slots = zynq->num_forbidden_slots;
+    param.num_rows = zynq->num_rows;
+    param.width = zynq->width;
     param.bram = &bram_vector;
     param.clb  = &clb_vector;
     param.dsp  = &dsp_vector;
-    param.forbidden_slots = zynq->num_forbidden_slots;
     param.fbdn_slot = &forbidden_region;
 
-    //param.forbidden_slots = zynq->forbidden_regs[0];
-    //param.fbdn_slot = &fs_k;
-
+    //start optimizer
     init_vectors(&param, &from_solver);
+
+    //calibrate the data returned from optimizer for visualization
     plot_rects(&from_solver);
-    unsigned long m;
+
+    //Plot slots
     QPen slot_pen(Qt::red);
     slot_pen.setWidth(2);
 
@@ -240,8 +245,8 @@ void fp::plot_rects(param_from_solver *fs)
 {
     unsigned long int i;
 
+    qDebug() <<"total height" << total_height <<endl;
     /*The information about the total height must be integral part of the FPGA description*/
-
     for(i = 0; i < num_slots; i++) {
         x_vector[i] = (*fs->x)[i] * clb_width;
         y_vector[i] = total_height - (((*fs->y)[i] + (*fs->h)[i]) * bram_height);

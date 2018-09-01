@@ -53,7 +53,7 @@ OBJECTS_DIR   = ./
 SOURCES       = ../fp_visualizer/main.cpp \
 		../fp_visualizer/fp.cpp \
 		../fp_visualizer/fpga.cpp \
-		../../engine/src/model.cpp moc_fp.cpp
+		../../../fp/dpr_floorplaning/engine/model.cpp moc_fp.cpp
 OBJECTS       = main.o \
 		fp.o \
 		fpga.o \
@@ -254,7 +254,7 @@ DIST          = /opt/Qt/5.11.0/gcc_64/mkspecs/features/spec_pre.prf \
 		../../engine/include/gurobi_c++.h ../fp_visualizer/main.cpp \
 		../fp_visualizer/fp.cpp \
 		../fp_visualizer/fpga.cpp \
-		../../engine/src/model.cpp
+		../../../fp/dpr_floorplaning/engine/model.cpp
 QMAKE_TARGET  = fp_visualizer
 DESTDIR       = 
 TARGET        = fp_visualizer
@@ -669,7 +669,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /opt/Qt/5.11.0/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../fp_visualizer/fp.h ../fp_visualizer/fpga.h ../../engine/include/model.h ../../engine/include/gurobi_c++.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../fp_visualizer/main.cpp ../fp_visualizer/fp.cpp ../fp_visualizer/fpga.cpp ../../engine/src/model.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../fp_visualizer/main.cpp ../fp_visualizer/fp.cpp ../fp_visualizer/fpga.cpp ../../../fp/dpr_floorplaning/engine/model.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../fp_visualizer/fp.ui $(DISTDIR)/
 
 
@@ -1025,6 +1025,21 @@ moc_fp.cpp: /opt/Qt/5.11.0/gcc_64/include/QtWidgets/QDialog \
 		/opt/Qt/5.11.0/gcc_64/include/QtGui/qtguiversion.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QGraphicsScene \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qgraphicsscene.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QTableWidget \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtablewidget.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtableview.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractitemview.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qframe.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qstyleoption.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qslider.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractslider.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qstyle.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtabbar.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtabwidget.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qrubberband.h \
 		../../engine/include/model.h \
 		../fp_visualizer/fpga.h \
 		../fp_visualizer/fp.h \
@@ -1374,6 +1389,21 @@ main.o: ../fp_visualizer/main.cpp ../fp_visualizer/fp.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtGui/qtguiversion.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QGraphicsScene \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qgraphicsscene.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QTableWidget \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtablewidget.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtableview.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractitemview.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qframe.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qstyleoption.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qslider.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractslider.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qstyle.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtabbar.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtabwidget.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qrubberband.h \
 		../../engine/include/model.h \
 		../fp_visualizer/fpga.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QApplication \
@@ -1702,15 +1732,12 @@ fp.o: ../fp_visualizer/fp.cpp ../fp_visualizer/fp.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtGui/qtguiversion.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QGraphicsScene \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qgraphicsscene.h \
-		../../engine/include/model.h \
-		../fp_visualizer/fpga.h \
-		ui_fp.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtCore/QVariant \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QApplication \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qapplication.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qdesktopwidget.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QComboBox \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qcombobox.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QTableWidget \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtablewidget.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtableview.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractitemview.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qframe.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qstyleoption.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractspinbox.h \
@@ -1720,7 +1747,15 @@ fp.o: ../fp_visualizer/fp.cpp ../fp_visualizer/fp.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtabbar.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qtabwidget.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qrubberband.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qframe.h \
+		../../engine/include/model.h \
+		../fp_visualizer/fpga.h \
+		ui_fp.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtCore/QVariant \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QApplication \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qapplication.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QComboBox \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qcombobox.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QFormLayout \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qformlayout.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QLayout \
@@ -1731,8 +1766,9 @@ fp.o: ../fp_visualizer/fp.cpp ../fp_visualizer/fp.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QGraphicsView \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qgraphicsview.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qscrollarea.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractscrollarea.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QHBoxLayout \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QHeaderView \
+		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qheaderview.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QLabel \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qlabel.h \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QLineEdit \
@@ -1749,10 +1785,11 @@ fp.o: ../fp_visualizer/fp.cpp ../fp_visualizer/fp.h \
 fpga.o: ../fp_visualizer/fpga.cpp ../fp_visualizer/fpga.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o fpga.o ../fp_visualizer/fpga.cpp
 
-model.o: ../../engine/src/model.cpp /opt/gurobi702/linux64/include/gurobi_c++.h \
+model.o: ../../../fp/dpr_floorplaning/engine/model.cpp /opt/gurobi702/linux64/include/gurobi_c++.h \
 		/opt/gurobi702/linux64/include/gurobi_c.h \
-		../../engine/include/model.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o model.o ../../engine/src/model.cpp
+		../../engine/include/model.h \
+		../fp_visualizer/fpga.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o model.o ../../../fp/dpr_floorplaning/engine/model.cpp
 
 moc_fp.o: moc_fp.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_fp.o moc_fp.cpp

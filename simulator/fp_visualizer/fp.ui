@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1557</width>
+    <width>1856</width>
     <height>1278</height>
    </rect>
   </property>
@@ -170,8 +170,24 @@
      <x>290</x>
      <y>20</y>
      <width>1161</width>
-     <height>911</height>
+     <height>1101</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tableWidget">
+   <property name="geometry">
+    <rect>
+     <x>1495</x>
+     <y>40</y>
+     <width>351</width>
+     <height>611</height>
+    </rect>
+   </property>
+   <property name="rowCount">
+    <number>0</number>
+   </property>
+   <property name="columnCount">
+    <number>0</number>
    </property>
   </widget>
  </widget>

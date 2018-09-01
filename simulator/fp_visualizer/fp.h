@@ -5,6 +5,7 @@
 #include <QtCore>
 #include <QtGui>
 #include <QGraphicsScene>
+#include <QTableWidget>
 
 //#include "gurobi_c++.h"
 #include "../../engine/include/model.h"
@@ -32,6 +33,7 @@ public:
     QGraphicsScene scene;
     QGraphicsRectItem *fp_rect;
     QBrush brush, brush_background;
+    QTableWidget *table;
 
     fpga *zynq;
     QString str;
@@ -62,7 +64,7 @@ public:
     const int clb_width = 20;
     const int clb_height = 8, bram_height = 40, dsp_height = 20;
     const int x_start = 400, y_start = 10;
-    int total_height;
+    unsigned long total_height;
 
     void init_fpga(enum fpga_type);
     void init_gui();

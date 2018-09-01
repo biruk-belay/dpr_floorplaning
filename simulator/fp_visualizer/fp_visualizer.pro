@@ -26,7 +26,7 @@ SOURCES += \
         main.cpp \
         fp.cpp \
     fpga.cpp \
-    ../../engine/src/model.cpp
+    ../../../fp/dpr_floorplaning/engine/model.cpp
 
 LIBS += \
        -lgurobi_g++5.2\

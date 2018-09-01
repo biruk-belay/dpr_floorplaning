@@ -16,9 +16,11 @@
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QTableWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -54,12 +56,13 @@ public:
     QLabel *num_slotsLabel_2;
     QLineEdit *num_slotsLineEdit_2;
     QGraphicsView *graphicsView;
+    QTableWidget *tableWidget;
 
     void setupUi(QDialog *fp)
     {
         if (fp->objectName().isEmpty())
             fp->setObjectName(QStringLiteral("fp"));
-        fp->resize(1557, 1278);
+        fp->resize(1856, 1278);
         verticalLayoutWidget = new QWidget(fp);
         verticalLayoutWidget->setObjectName(QStringLiteral("verticalLayoutWidget"));
         verticalLayoutWidget->setGeometry(QRect(60, 350, 91, 51));
@@ -178,7 +181,12 @@ public:
 
         graphicsView = new QGraphicsView(fp);
         graphicsView->setObjectName(QStringLiteral("graphicsView"));
-        graphicsView->setGeometry(QRect(290, 20, 1161, 911));
+        graphicsView->setGeometry(QRect(290, 20, 1161, 1101));
+        tableWidget = new QTableWidget(fp);
+        tableWidget->setObjectName(QStringLiteral("tableWidget"));
+        tableWidget->setGeometry(QRect(1495, 40, 351, 611));
+        tableWidget->setRowCount(0);
+        tableWidget->setColumnCount(0);
 
         retranslateUi(fp);
 

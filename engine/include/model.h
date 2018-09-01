@@ -14,6 +14,8 @@ typedef std::vector<pos>    Vecpos;
 typedef struct {
     unsigned long num_slots;
     unsigned long forbidden_slots;
+    unsigned long num_rows;
+    unsigned long width;
     Vec *clb;
     Vec *bram;
     Vec *dsp;
