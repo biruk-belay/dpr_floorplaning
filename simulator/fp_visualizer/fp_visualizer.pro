@@ -26,7 +26,9 @@ SOURCES += \
         main.cpp \
         fp.cpp \
     fpga.cpp \
-    ../../../fp/dpr_floorplaning/engine/model.cpp
+    csv_data_manipulator.cpp \
+    ../../../fp/dpr_floorplaning/engine/model_virtex.cpp \
+    ../../../fp/dpr_floorplaning/engine/model_zynq.cpp
 
 LIBS += \
        -lgurobi_g++5.2\
@@ -36,8 +38,9 @@ LIBS += \
 HEADERS += \
         fp.h \
         fpga.h \
-    ../../engine/include/model.h \
-    ../../engine/include/gurobi_c++.h
+    ../../engine/include/gurobi_c++.h \
+    csv_data_manipulator.hpp \
+    ../../engine/include/zynq_model.h
 
 FORMS += \
         fp.ui

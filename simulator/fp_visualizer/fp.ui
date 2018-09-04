@@ -132,7 +132,7 @@
   <widget class="QPushButton" name="enter_button">
    <property name="geometry">
     <rect>
-     <x>60</x>
+     <x>10</x>
      <y>310</y>
      <width>89</width>
      <height>25</height>
@@ -188,6 +188,32 @@
    </property>
    <property name="columnCount">
     <number>0</number>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="browse_button">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>310</y>
+     <width>89</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Browse</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="FPGA">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>10</y>
+     <width>71</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>FPGA</string>
    </property>
   </widget>
  </widget>

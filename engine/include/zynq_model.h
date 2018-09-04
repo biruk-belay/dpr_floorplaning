@@ -29,4 +29,6 @@ typedef  struct{
     std::vector<int> *h;
 }param_from_solver;
 
-int init_vectors(param_to_solver *, param_from_solver *);
+int zynq_start_optimizer(param_to_solver *, param_from_solver *);
+int virtex_start_optimizer(param_to_solver *, param_from_solver *);
+

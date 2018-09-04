@@ -57,6 +57,8 @@ public:
     QLineEdit *num_slotsLineEdit_2;
     QGraphicsView *graphicsView;
     QTableWidget *tableWidget;
+    QPushButton *browse_button;
+    QPushButton *FPGA;
 
     void setupUi(QDialog *fp)
     {
@@ -160,7 +162,7 @@ public:
 
         enter_button = new QPushButton(fp);
         enter_button->setObjectName(QStringLiteral("enter_button"));
-        enter_button->setGeometry(QRect(60, 310, 89, 25));
+        enter_button->setGeometry(QRect(10, 310, 89, 25));
         formLayoutWidget_3 = new QWidget(fp);
         formLayoutWidget_3->setObjectName(QStringLiteral("formLayoutWidget_3"));
         formLayoutWidget_3->setGeometry(QRect(10, 70, 181, 41));
@@ -187,6 +189,12 @@ public:
         tableWidget->setGeometry(QRect(1495, 40, 351, 611));
         tableWidget->setRowCount(0);
         tableWidget->setColumnCount(0);
+        browse_button = new QPushButton(fp);
+        browse_button->setObjectName(QStringLiteral("browse_button"));
+        browse_button->setGeometry(QRect(120, 310, 89, 25));
+        FPGA = new QPushButton(fp);
+        FPGA->setObjectName(QStringLiteral("FPGA"));
+        FPGA->setGeometry(QRect(200, 10, 71, 25));
 
         retranslateUi(fp);
 
@@ -204,6 +212,8 @@ public:
         slotLabel->setText(QApplication::translate("fp", "slot", nullptr));
         enter_button->setText(QApplication::translate("fp", "Enter", nullptr));
         num_slotsLabel_2->setText(QApplication::translate("fp", "num_slots", nullptr));
+        browse_button->setText(QApplication::translate("fp", "Browse", nullptr));
+        FPGA->setText(QApplication::translate("fp", "FPGA", nullptr));
     } // retranslateUi
 
 };

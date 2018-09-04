@@ -6,10 +6,12 @@
 #include <QtGui>
 #include <QGraphicsScene>
 #include <QTableWidget>
+#include <QString>
 
 //#include "gurobi_c++.h"
-#include "../../engine/include/model.h"
+#include "../../engine/include/zynq_model.h"
 #include "fpga.h"
+#include "csv_data_manipulator.hpp"
 
 namespace Ui {
 class fp;
@@ -34,13 +36,17 @@ public:
     QGraphicsRectItem *fp_rect;
     QBrush brush, brush_background;
     QTableWidget *table;
+    QString file_path;
 
     fpga *zynq;
+    virtex *virt;
     QString str;
     param_to_solver param;
 
     unsigned long int num_slots = 0;
     bool paint_rect = false;
+    enum fpga_type type = ZYNQ;
+    const int virtex_scale = 3;
 
     std::vector<int> clb_vector =  std::vector<int>(MAX_SLOTS);
     std::vector<int> bram_vector = std::vector<int>(MAX_SLOTS);
@@ -56,20 +62,21 @@ public:
     std::vector<int> w_vector =  std::vector<int>(MAX_SLOTS);
     std::vector<int> h_vector =  std::vector<int>(MAX_SLOTS);
 
-    position_vec forbidden_region = position_vec(MAX_SLOTS);
+    position_vec forbidden_region_zynq = position_vec(MAX_SLOTS);
+    position_vec forbidden_region_virtex = position_vec(MAX_SLOTS);
 
     param_from_solver from_solver = {&eng_x, &eng_y,
                                    &eng_w, &eng_h};
 
-    const int clb_width = 20;
-    const int clb_height = 8, bram_height = 40, dsp_height = 20;
-    const int x_start = 400, y_start = 10;
+    int clb_width = 10;
+    int clb_height = 8, bram_height = 40, dsp_height = 20;
     unsigned long total_height;
 
     void init_fpga(enum fpga_type);
     void init_gui();
     void plot_rects(param_from_solver *);
-    void paint_fp();
+    void paint_zynq();
+    void paint_virtex();
 
 private:
     Ui::fp *ui;
@@ -78,6 +85,8 @@ private slots:
     void set_pressed();
     void enter_pressed();
     void start_pressed();
+    void set_browse();
+    void fpga_pressed();
 };
 
 #endif // FP_H
