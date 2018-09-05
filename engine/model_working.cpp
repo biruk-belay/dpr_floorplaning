@@ -12,13 +12,14 @@ typedef vector<GRBVar3DArray>   GRBVar4DArray;
 using namespace std;
 
 unsigned long H = 20, W = 29;
-unsigned long num_slots = 3;
-unsigned long num_rows = 20;
+unsigned long num_slots = 5;
+unsigned long num_rows = 10;
+unsigned long num_clk_regs = 2;
 unsigned long num_forbidden_slots = 2;
 unsigned long BIG_M = 1000000;
-unsigned long res_req[] = {200, 400, 60, 125, 160, 8, 28, 24};
-unsigned long bram_req[] = {10, 10, 0, 0, 0, 0, 0, 0};
-unsigned long dsp_req[] = {16, 0, 0, 0, 0, 0, 0, 0};
+unsigned long res_req[] = {140, 50, 160, 15, 160, 8, 28, 24};
+unsigned long bram_req[] = {12, 10, 10, 0, 0, 0, 0, 0};
+unsigned long dsp_req[] = {0, 12, 0, 0, 0, 0, 0, 0};
 unsigned long fs [2][4] = {{10, 0, 1, H}, {15, 0, 1, H}};
 unsigned long status, i ,k, j, l;
 unsigned long delta_size;
@@ -192,7 +193,7 @@ int solve_milp()
          type: binary
          func: beta[i][k] = 1 if clock region k is part of slot 'i'
         ***********************************************************************/
-
+/*
         GRBVar2DArray beta (num_slots);
         for(i = 0; i < num_slots; i++) {
             GRBVarArray each_region(num_rows);
@@ -202,6 +203,20 @@ int solve_milp()
                 beta[i][k] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
         }
 
+  */
+         GRBVar3DArray beta (num_slots);
+        	for(i = 0; i < num_slots; i++) {
+                GRBVar2DArray for_each_clk_reg(num_clk_regs);
+                beta[i] = for_each_clk_reg;
+
+                for(j = 0; j < num_clk_regs; j++) {
+                    GRBVarArray each_region(num_rows);
+                    beta[i][j] = each_region;
+
+                   for(k = 0; k < num_rows; k++)
+                        beta[i][j][k] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+            }
+        } 
         /**********************************************************************
          name: tau
          type: integer
@@ -210,7 +225,7 @@ int solve_milp()
                denote the type of resource and the second is used to denote 
                the slot 
         ***********************************************************************/
-        GRBVar3DArray tau (3); //for clb, bram, dsp
+        /*GRBVar3DArray tau (3); //for clb, bram, dsp
         for(i = 0; i < 3; i++) {
             GRBVar2DArray each_slot(num_slots);
 
@@ -223,7 +238,26 @@ int solve_milp()
                     tau[i][k][j] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_INTEGER);
             }
         }
-       
+      */ 
+        GRBVar4DArray tau (3); //for clb, bram, dsp
+        for(i = 0; i < 3; i++) {
+            GRBVar3DArray each_slot(num_slots);
+            tau[i] = each_slot;
+
+            for(l = 0; l < num_slots; l++) {
+                GRBVar2DArray for_each_clk_reg(num_clk_regs);
+
+                tau[i][l] = for_each_clk_reg;
+                for(k = 0; k < num_clk_regs; k++) {
+                    GRBVarArray each_slot_1(num_rows);
+
+                    tau[i][l][k] = each_slot_1;
+                    for(j = 0; j < num_rows; j++)
+                        tau[i][l][k][j] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_INTEGER);
+                }
+            }
+        }
+
        /**********************************************************************
          name: gamma
          type: binary
@@ -446,7 +480,7 @@ int solve_milp()
         Constr 1.1: The x coordinates must be constrained not to exceed
                       the boundaries of the fabric
         ********************************************************************/
-        for(i = 0; i < num_slots; i++) {
+     /*   for(i = 0; i < num_slots; i++) {
             //for(k = 0; k< num_slots; k++) {
                 model.addConstr(w[i] == x[i][1] - x[i][0], "1");
                 //model.addConstr(x[i][0] <= W-1, "2");
@@ -454,13 +488,13 @@ int solve_milp()
                 model.addConstr(x[i][1] - x[i][0] >= 1, "4");
             //}        
         }
-    
+    */  
         /********************************************************************
         Constr 1.2: The binary variables representing the rows must be 
                     contigious i.e, if a region occupies clock region 1 and 3 
                     then it must also occupy region 2 
         ********************************************************************/
-        for(i = 0; i < num_slots; i++) {
+        /*for(i = 0; i < num_slots; i++) {
             GRBLinExpr exp;
             for(k = 0; k < (num_rows - 2); k++) {
                 if(num_rows > 2)
@@ -470,12 +504,27 @@ int solve_milp()
 
             }
                 //model.addConstr(exp <= 5, "98");
-        }
+        }*/
+
+			for(i = 0; i < num_slots; i++) {
+                  for(j = 0; j < num_clk_regs; j++) {
+                      GRBLinExpr exp = 0;
+                      for(k = 0; k < num_rows; k++) {
+                          exp += beta[i][j][k];
+                      }
+
+                      for(l = 0; l < num_rows; l++) {
+                          model.addConstr(beta[i][j][l] >= (exp - beta[i][j][l]) / (num_rows - 1), "500");
+                      }
+                  }
+              }
+
+
 
         /************************************************************************
         Constr 1.3: The height of slot 'i' must be the sum of all clbs in the slot                 
         *************************************************************************/
-
+/*
         for(i = 0; i < num_slots; i++) {
             GRBLinExpr exp;
             for(k = 0; k < num_rows; k++) {
@@ -483,6 +532,17 @@ int solve_milp()
             }
             model.addConstr(h[i] == exp, "6");
             //model.addConstr(h[i] <= 8, "7");
+        }
+*/
+        for(i = 0; i < num_slots; i++) {
+            GRBLinExpr exp;
+            for(j = 0; j < num_clk_regs; j++) {
+                for(k = 0; k < num_rows; k++) {
+                    exp += beta[i][j][k];
+            }
+            //model.addConstr(h[i] <= 8, "7");
+            }
+            model.addConstr(h[i] == exp, "6");
         }
 
         /******************************************************************
@@ -493,7 +553,7 @@ int solve_milp()
             GRBLinExpr exp_y;
 
             for(k = 0; k < num_rows; k++) {
-                model.addConstr(y[i] <= (H - beta[i][k] * (H - k)), "99");
+                //model.addConstr(y[i] <= (H - beta[i][k] * (H - k)), "99");
                 model.addConstr(y[i] + h[i] <= H, "100");
             }
         }
@@ -691,7 +751,7 @@ int solve_milp()
       /*********************************************************************
         Constr 2.3: There must be enough clb, bram and dsp inside the slot
       **********************************************************************/
-        for(i = 0; i < num_slots; i++) {
+/*        for(i = 0; i < num_slots; i++) {
             GRBLinExpr exp_tau, exp_res, exp_bram, exp_dsp;
 
             for(k = 0; k < num_rows; k++) {
@@ -724,6 +784,42 @@ int solve_milp()
             model.addConstr((2 * exp_dsp) - dsp_req[i] <= 0.9 * dsp_req[i], "170"); 
 #endif
         }
+*/
+
+      for(i = 0; i < num_slots; i++) {
+            GRBLinExpr exp_tau, exp_res, exp_bram, exp_dsp;
+            for(j = 0; j < num_clk_regs; j++) {
+            for(k = 0; k < num_rows; k++) {
+                model.addConstr(tau[0][i][j][k] <= 1000 * beta[i][j][k], "58");
+                model.addConstr(tau[0][i][j][k] <= clb[i][1] - clb[i][0], "59");
+                model.addConstr(tau[0][i][j][k] >= (clb[i][1] - clb[i][0]) - (1 - beta[i][j][k]) * clb_max, "60");
+                model.addConstr(tau[0][i][j][k] >= 0, "15");
+                
+                model.addConstr(tau[1][i][j][k] <= 1000 * beta[i][j][k], "61");
+                model.addConstr(tau[1][i][j][k] <= bram[i][1] - bram[i][0], "62");
+                model.addConstr(tau[1][i][j][k] >= (bram[i][1] - bram[i][0]) - (1 - beta[i][j][k]) * bram_max, "63");
+                model.addConstr(tau[1][i][j][k] >= 0, "53");
+//#ifdef dspp
+                model.addConstr(tau[2][i][j][k] <= 1000 * beta[i][j][k], "64");
+                model.addConstr(tau[2][i][j][k] <= dsp[i][1] - dsp[i][0], "65");
+                model.addConstr(tau[2][i][j][k] >= (dsp[i][1] - dsp[i][0]) - (1 - beta[i][j][k]) * dsp_max, "66");
+                model.addConstr(tau[2][i][j][k] >= 0, "67");
+                
+                exp_dsp  += tau[2][i][j][k];
+//#endif
+                exp_res += tau[0][i][j][k];
+                exp_bram += tau[1][i][j][k];
+            }
+            }
+            model.addConstr(5 * exp_res >= res_req[i],"68");
+            //model.addConstr((5 * exp_res) - res_req[i] <= 2 * res_req[i],"168");
+            model.addConstr(exp_bram >= bram_req[i],"69");
+            //model.addConstr(exp_bram - bram_req[i] <= 0.99 * (bram_req[i]),"169");
+//#ifdef dspp
+            model.addConstr(2 * exp_dsp >= dsp_req[i],"70");
+            //model.addConstr((2 * exp_dsp) - dsp_req[i] <= 0.99 * dsp_req[i], "170");
+//#endif
+        }
 
         //Interference constraints
         /***********************************************************************
@@ -737,8 +833,8 @@ int solve_milp()
                 model.addConstr(BIG_M * theta[i][k] >= y[k] - y[i], "64");
                 model.addConstr(BIG_M * Gamma[i][k] >= x[i][1] - x[k][0] + 1, "65");
                 model.addConstr(BIG_M * Alpha[i][k] >= x[k][1] - x[i][0] + 1, "66");
-                model.addConstr(BIG_M * Omega[i][k] >= y[i] + h[i] - y[k] + 1, "67");
-                model.addConstr(BIG_M * Psi[i][k]   >= y[k] + h[k] - y[i] + 1, "68");
+                model.addConstr(BIG_M * Omega[i][k] >= y[i] + h[i] - y[k], "67");
+                model.addConstr(BIG_M * Psi[i][k]   >= y[k] + h[k] - y[i], "68");
             }
         }
 
@@ -847,12 +943,19 @@ int solve_milp()
                      cout <<endl;
                }
 //#endif
-                for(k =0; k < num_rows; k++)
+/*                for(k =0; k < num_rows; k++)
                     cout << "b"<< k << " " <<beta[i][k].get(GRB_DoubleAttr_X) << " " ;
 
                                cout <<  endl;
-            }
-        }
+  */
+			for(l =0; l < num_clk_regs; l++)
+                for(k =0; k < num_rows; k++)
+                    cout << "b"<< k << " " <<beta[i][l][k].get(GRB_DoubleAttr_X) << " " ; 
+
+
+          }
+                          
+}
     
     else {
        model.computeIIS();

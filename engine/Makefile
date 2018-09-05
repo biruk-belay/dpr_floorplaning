@@ -4,7 +4,7 @@ CFLAGS += -std=c++11
 
 LDFLAGS = -L/opt/gurobi702/linux64/lib/ -lgurobi_g++5.2 -lgurobi_c++ -lgurobi70
 
-fp: SOURCES = src/model.cpp
+fp: SOURCES = model_working.cpp
 fp: BIN = bin/fp_run
 fp: build
 

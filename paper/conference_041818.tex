@@ -11,6 +11,8 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
+\newtheorem{constraint}{\textit{Constraint}}
+
 \title{Paper Title*\\
 {\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
 should not be used}
@@ -33,9 +35,7 @@ email address}
 \maketitle
 
 \begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
+
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -43,79 +43,33 @@ component, formatting, style, styling, insert
 \end{IEEEkeywords}
 
 \section{Introduction}
-The conventional approach for generating FPGA floorplans usually involves two steps. First, all the possible slots are enumerated. This is done by starting a scan on the fpga fabric from the bottom left corner and lisitng all the possible rectangles which contain all the necessary resources for the respective slots. Then some sort of heuristics/optimization is applied to choose the best ones from the set of possible slots.\\
-Our approach instead focuses on direct ILP/MILP modeling of the FPGA floorplanning problem and trying to find the appropriate slots based on the defined constraints.\\
+Floorplanning is one of the major challenges in the field of dynamic parital reconfiguration. The placement of the static and reconfigurable slots on the FPGA fabric must satisfy the application requirements set by the application designer while also respecting the technological constraints set by the manufacturer. The conventional approach for an automated generation of FPGA floorplans usually involves two steps. First for each slot, all the possible rectangular slots that satisfy the resources requirement of the slot are enumerated. This is done by starting a scan on the fpga fabric from the bottom left corner and lisitng all the rectangles that contain all the necessary resources for the respective slots. Then some sort of heuristics/optimization is applied to choose the optimal ones from the set of possible slots. This approach has many problems \{\textit{to be listed later}\}\\\\
 
-Let us consider a floorplanning example where we have to make a floorplan for two slots S$_1$ and S$_2$ on the FPGA fabric. Each slot has resource requirements denoted as \{D$_1$, B$_1$, C$_1$\} and \{D$_2$, B$_2$, C$_2$\} where D, B and C represent DSP, BRAM and CLB respectively. \\ Our proposed system as an input takes in the resource requirement of each slot and a description of the resource distribution of the FPGA fabric and it returns the placement coordinates of the slots on the fpga fabric. \\
-A slot is represented using 4 parameters i.e. the two bottom left coordinates and the width and the height of the slot. In our considered example the slots S$_1$ and S$_2$ are represented as (x$_1$, y$_1$, w$_1$, h$_1$) and (x$_2$, y$_2$, w$_2$, h$_2$). \\ 
+Our approach instead focuses on applying the optimization process on a lower level of abstraction of the fpga fabric i.e., rather than applying optimization to select the most optimal one from a set of pre-scanned slots, we modeled the different types of resources on the fpga and their distribution along with forbidden regions as a set of constraints and added these constraints to the predefined constraints related to dpr. \\
+
+Let us consider a floorplanning example where we have to make a floorplan for two slots S$_1$ and S$_2$ on the FPGA fabric. Each slot has resource requirements denoted as \{D$_1$, B$_1$, C$_1$\} and \{D$_2$, B$_2$, C$_2$\} where D, B and C represent DSP, BRAM and CLB respectively. \\ Our proposed system takes as an input in the resource requirement of each slot and a description of the resource distribution of the FPGA fabric and it returns the placement coordinates of the slots on the fpga fabric. \\
+A slot is represented using 4 parameters i.e. the two bottom left coordinates and the width and the height of the slot. In our considered example the slots S$_1$ and S$_2$ are represented as (x$_1$, y$_1$, w$_1$, h$_1$) and (x$_2$, y$_2$, w$_2$, h$_2$). A forbidden region is also represented as a slot hence a forbidden region F$_i$ can be represented as {fx$_i$, fy$_k$, fw$_i$, fy$_i$}  \\ 
 
 
-\section{FPGA resource mapping}
-Consider the resource layout in one of the quadrants of xc7z015 FPGA in the picture below
-\includegraphics[width=\textwidth, height=5cm]{graphics/fpga_1.png} \\ \\
+\section{FPGA resource representation}
 
-The FPGA is divided into a grid of different resources. The columns on the x-axis are represented with an integer from 0 to W-1 meanwhile the rows on the y-axis are represented with a set of binary variables. \\
- 
-A(\textit{x}) denotes the distribution of BRAMs on the x axis starting from the bottom left corner of the FPGA fabric and it is expressed as 
+\subsection{transformation to binary}
+The FPGA is divided into multiple grids (columns) of different resources with heterogenous distribution. Heterogeneous distribution implies the layout of different resources differs from clock region to clock region. The resources on the two dimensional region are represented with x and y coordinate system. the X axis runs from 0 to W - 1 and the Y axis runs from 0 to H-1. 
+%The total number of a resource R within a slot S$_i$ = (x$_i$, y$_i$, w$_i$, h$_i$) is then equal to
+%\begin{equation}
+%R = (x_i + w_i) \cdot (y_i + h_i)
+%\end{equation}  
 
+To use linear optimization the x or y axis can also be represented with a set of binary variables which denote each row or column respectively. Choosing which axis to change in to binary is an important design decision. In all the FPGA families that were chosen to be studied for this project, the Y axis was observed to contain less number of resources than the x axis. For example in a kintex xc7z045fbv676 contains 100 columns on the x axis and 70 rows on the y axis. Perhaps representing the y axis with binar of variables was a better option as it results in a less number of binary variables. The reduction on the number of binary variables to represent each row on the y axis was made possible by assigning a row per bram instead of rows per clb or per dsp on each column as a bram spans at least 5 or more clb high and 2 or more dsp high. This is actually a neccessary abstraction as brams are indivisble and a finegrained assignment of rows (that is based on clbs or dsps) ends up generating a floorplan that violates rules in the implemetnation tool. \\
+
+\subsection{FPGA resource finger-printing}
+The FPGA is now abstracted using binary variables on the y axis and integers on the x axis. The fpga is also divided into clock regions. A clock regions spans r rows high and H which is the total number of rows is the summation of each row in each clock region i.e.,  
 \begin{equation}
-A(x) = \begin{cases}
-0, & \textbf{0$\leq$x$<$4}, \\
-1, & \textbf{4$\leq$x$<$18}, \\
-2, & \textbf{18$\leq$x$<$25}, \\
-3, & \textbf{25$\leq$x$<$W},
-\end{cases}
+H = \sum_{j=0}^{clk\_reg} r
 \end{equation}
 
-meanwhile the number of BRAMs on the y axis equals 
-\begin{equation}
-B(y) = \begin{cases}
-y\%5, & \textbf{0$\leq$y$<$H},
-\end{cases}
-\end{equation}
+The distribution of each resource on the x axis of the FPGA in a single row can be represented using a piece-wise linear function. For example in zynq xc7z015 the number of clbs on the x axis between the bottom left corner i.e., (0, 0) and a point x, on the x axis is represented using F(x) as  
 
-The total number of BRAMs inside a slot S$_i$ equals to \\
-\begin{equation}
-BRAM(x_i,y_i,w_i,h_i) =  (A(x_i+w_i) - A(x_i)) \cdot (B(y_i+h_i) - B(y_i))
-\end{equation}
-
-The number of BRAMs inside a slot S$_i$ can also be expressed as 
-\begin{equation}
-BRAM(x_i, w_i) = \sum_{k=0}^{H-1} \beta_k \cdot m(x_i, w_i))
-\end{equation}
-where $\beta$ is the set of all binary variables representing each row and m(x$_i$, w$_i$) = (A(x$_i$+w$_i$) - A(x$_i$) \\
-
-this non linear function can be converted into a linear form according to \cite{1} in the following form
-\begin{equation}
-BRAM(x_i,w_i) = \sum_{k=0}^{H-1} (\beta_k L + \tau)
-subject to
-\tau \geq m(x_i, w_i)- \beta_k L -U(1-\beta_k)
-\end{equation}
-where L and U represent lower and upper bounds of m(x$_i$,w$_i$) i.e. L $\leq$ m(x$_i$, w$_i$) $\leq$ U
-
-The number of DSPs on the x axis of the FPGA fabric is expressed as 
-\begin{equation}
-C(x) = \begin{cases}
-0, & \textbf{0$\leq$x$<$7}, \\
-1, & \textbf{7$\leq$x$<$22}, \\
-2, & \textbf{22$\leq$x$<$W},
-\end{cases}
-\end{equation}
-
-meanwhile the number of DSPs on the y axis equals 
-\begin{equation}
-D(y) = \begin{cases} 
-y\%5, & \textbf{0$\leq$y$<$H},
-\end{cases}
-\end{equation}
-
-The total number of DSPs inside a slot S$_i$ equals to \\
-\begin{equation}
-DSP(x_i,y_i,w_i,h_i) =  (C(x_i+w_i) - C(x_i)) \cdot (D(y_i+h_i) - D(y_i))
-\end{equation}					  
-
-
-The number of CLB on the x axis is expressed 					  
 \begin{equation}
 F(x) = \begin{cases}
 x, & \textbf{ 0$\leq$x$<$4}, \\
@@ -129,44 +83,119 @@ x, & \textbf{ 0$\leq$x$<$4}, \\
 \end{cases}
 \end{equation}
 
-The number of CLB on the y axis is expressed as 
+The number of clb, in a height of a single row, between x$_1$ and x$_1$ can then be represented as clb(x$_1$, x$_2$) such that 
+
 \begin{equation}
-G(y) =  \begin{cases}
-y, & \textbf{0$\leq$y$<$H}
-\end{cases}
+clb(x_1, x_2) = F(x_2) - F(x_1)
 \end{equation}
 
-The total number of CLBs inside a slot S$_i$ equals to \\
+if $\beta_{ijk}$ represents row k in clock region j for slot i on the fpga then C(x$_i$, y$_i$, w$_i$, h$_i$) which is the total number of clbs in a slot S$_i$ can be calculated as 
 \begin{equation}
-CLB(x_i,y_i,w_i,h_i) =  (F(x_i+w_i) - F(x_i)) \cdot (G(y_i+h_i) - G(y_i))
-\end{equation}					  
-			  
-					  
-\hspace{15mm} where \[y_i\in \{0, H-1 \}  \quad and \quad x_i\in \{0, W-1 \} \] \\
+C(x_i,y_i,w_i,h_i) = \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r-1} \beta_{ijk} \cdot (F(x_i+w_i) - F(x_i))
+\label{clb_tot}
+\end{equation}
+where h$_i$ which is the height of S$_i$ and can be expressed as 
+
+\begin{equation}
+h_i = \sum_{j=0} ^{clk_reg} \sum_{k=0}^{r-1} \beta_{ijk}
+\end{equation}
+
+The same resource finger-printing using piecewise linear functions can be done to the bram and dsp on the fpga this can then be used to determine the number of the resource within a slot.
+
 
 \section{Design}
-\subsection{optimization variables}
-To encode the ILP/MILP formulation the following binary and real variables are defined. \\
+\subsection{definition of optimization variables}
+To encode the MILP formulation the following binary and real variables are defined. \\ \\
+Variables related to the size, location and number of resources in slot S$_i$ 
 For each slot S$_i$
 \begin{itemize}
-\item x$_i$, y$_i$ w$_i$, h$_i$ represent the bottom left coordinates, the width and the height of the rectangle respectively
+\item N: set of reconfigurable regions
+
+\item S$_i$: slot i
+
+\item W: total width of the fpga fabric
+
+\item H: total height of the fpga fabric
+
+\item r: number of rows inside a single clock region
+
+\item F: set of forbidden regions
+
+\item F$_k$: forbidden region k $\in$ F
+
+\item x$_i$, y$_i$ w$_i$, h$_i$ $\in$ [Z] represent the bottom left coordinates, the width and the height of the rectangle respectively
 \end{itemize}
+
+\begin{itemize}
+\item clb$_i$, bram$_i$ and dsp$_i$  $\in$ [Z] represent the number of clb, bram and dsp between x$_i$ and x$_i$ + w$_i$ in a single row respectively.
+\end{itemize}
+
+\begin{itemize}
+\item clb$\_$req$_i$, bram$\_$req$_i$ and dsp$\_$req$_i$  $\in$ [Z] represent the required number of clb, bram and dsp in S$_i$.
+\end{itemize}
+
+\begin{itemize}
+\item $\beta_{ijk}$ $\in$ [0,1] represents row k in clock region j for slot S$_i$.
+\end{itemize}
+\hfill \break
+Variables denoting the relationship between two slots 
 
 For two slots S$_i$ and S$_k$ 
 \begin{itemize}
-\item $\gamma_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the left or the right of S$_k$\\
+\item $\gamma_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the left or on the right of S$_k$\\
 $\gamma_{ik}$ = 1 if x$_i$ $\leq$ x$_k$ [i.e. S$_i$ is on the left of S$_k$]
+
 \item $\theta_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the top or bottom of of S$_k$\\
 $\theta_{ik}$ = 1 if y$_i$ $\leq$ y$_k$ [i.e. S$_i$ is found below S$_k$]
+
+\item $\Gamma_{ik}$ $\in$ [0,1] is used to denote if bottom right x coordinate of S$_i$ is found to the right of the bottom left coordinate of S$_k$ \\
+$\Gamma$ = 1 if x$_i$ + w$_i$ $\geq$ x$_k$
+
+\item $\eta_{ik}$ $\in$ [0,1] is used to denote if bottom right x coordinate of S$_k$ is found to the right of the bottom left coordinate of S$_i$ \\
+$\eta$ = 1 if x$_k$ + w$_k$ $\geq$ x$_i$
+
+\item $\Omega_{ik}$ $\in$ [0,1] is used to denote if the top y coordinate of S$_i$ is found above the lower y coordinate of S$_k$ \\
+$\Omega$ = 1 if y$_i$ + h$_i$ $\geq$ y$_k$
+
+\item $\Psi_{ik}$ $\in$ [0,1] is used to denote if top y coordinate of S$_k$ is found above the lower y coordinate of S$_i$ \\
+$\Psi$ = 1 if y$_k$ + h$_k$ $\geq$ y$_i$
+
+
 \item $\Delta_{ik}$ $\in$ [0,1] is a binary variable which indicates interfernce between slots S$_i$ and S$_k$.\\
 $\Delta_{ik}$ = 0 if there is no interference between the slots [i.e. not a single tile is shared between slots]
-\item D$_{w}$, B$_w$ and C$_w$ represent wasted DSPs, BRAMs and CLBs in S$_i$ respectively
-\item $\alpha_i$ is a real variable that is used to express the bound on the amount of wasted resources in a slot S$_i$
-\item $\rho$ and $\nu$ are vectors which contain the x and y coordinates of all the forbidden columns and rows on the FPGA fabric respectively 
-\item $\eta_{ik}$ is a real variable that expresses the bound on the wirelength between S$_i$ and S$_k$
+
+
+%\item D$_{w}$, B$_w$ and C$_w$ represent wasted DSPs, BRAMs and CLBs in S$_i$ respectively
+%\item $\alpha_i$ is a real variable that is used to express the bound on the amount of wasted resources in a slot S$_i$
+%\item $\rho$ and $\nu$ are vectors which contain the x and y coordinates of all the forbidden columns and rows on the FPGA fabric respectively 
+%\item $\eta_{ik}$ is a real variable that expresses the bound on the wirelength between S$_i$ and S$_k$
 \end{itemize}
 
+\hfill \break
 
+Variables denoting the relationship between S$_i$ and forbidden region F$_k$.  
+\begin{itemize}
+\item $\mu_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the left or on the right of F$_k$\\
+$\mu_{ik}$ = 1 if x$_i$ $\leq$ fx$_k$ [i.e. S$_i$ is on the left of F$_k$]
+
+\item $\nu_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the top or bottom of of F$_k$\\
+$\nu_{ik}$ = 1 if y$_i$ $\leq$ fy$_k$ [i.e. S$_i$ is found below F$_k$]
+
+\item fbdn$_1$ $\in$ [0,1] is used to denote if bottom right x coordinate of S$_i$ is found to the right of the bottom left coordinate of F$_k$ \\
+fbdn$_1$ = 1 if x$_i$ + w$_i$ $\geq$ fx$_k$
+
+\item fbdn$_2$ $\in$ [0,1] is used to denote if bottom right x coordinate of F$_k$ is found to the right of the bottom left coordinate of s$_i$ \\
+fbdn$_2$ = 1 if fx$_k$ + fw$_k$ $\geq$ x$_i$
+
+\item fbdn$_3$ $\in$ [0,1] is used to denote if the top y coordinate of S$_i$ is found above the lower y coordinate of F$_k$ \\
+fbdn$_3$ = 1 if y$_i$ + h$_i$ $\geq$ fy$_k$
+
+\item fbdn$_4$ $\in$ [0,1] is used to denote if top y coordinate of F$_k$ is found above the lower y coordinate of S$_i$ \\
+fbdn$\_4$ = 1 if fy$_k$ + fh$_k$ $\geq$ y$_i$
+
+\end{itemize}
+
+\subsection{Constraint definition}
 Slots for partial reconfiguration should fulfill the following constraints
 \begin{itemize}
 \item there must be enough resources within the slots
@@ -177,73 +206,150 @@ Slots for partial reconfiguration should fulfill the following constraints
 \item Other optimizations such as lower wire length between slots or lower length to I/O etc... can be added as constraints
 \end{itemize}
 
-\textbf{constraint 1}: Each slot must incorporate enough resources. \\
-For slot S$_i$
+\textbf{Semantics constraints} \\
+The following constraints ensure the soundness of some of the variables.\\
+\begin{constraint}: the x and y coordinates of S$_i$ must be constrained not to exceed the boundaries of the fabric
 \begin{equation}
 \begin{split}
-CLB(x_{i}, y_{i}, w_{i}, h_{i}) \geq  C_{i}\\
-DSP(x_{i}, y_{i}, w_{i}, h_{i}) \geq  D_{i} \\	
-BRAM(x_{i}, y_{i}, w_{i}, h_{i}) \geq  B_{i}
+x_i + w_i \leq W \\
+y_i + h_i \leq H \\
+\end{split}
+\end{equation} 
+\end{constraint}
+
+
+\begin{constraint} The height of S$_i$ must be the sum of chosen binary rows in each clock region
+\begin{equation}
+\begin{split}
+ h_i = \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r-1} \beta_{ijk}
+\end{split}
+\end{equation}
+\end{constraint}
+
+\begin{constraint} y$_i$ must be constrained not to be greater than the lowest chosen row 
+\begin{equation}
+\begin{split}
+y_i \leq \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r} H - \beta_{ijk} \cdot (H - (k + (r - 1) \cdot j))
+\end{split}
+\end{equation}
+\end{constraint}
+
+\begin{constraint} rows of the same clock region in S$_i$ must be contigious i.e., if $\beta_{ij0}$ = 1 \& $\beta_{ij2}$ = 1 then$\beta_{ij1}$ must also be equal to 1.
+\begin{equation}
+\begin{split}
+ \beta_{ij(k+1)} \geq \beta_{ijk} + \beta_{ij(k+2)} - 1 
+\end{split}
+\end{equation}
+\end{constraint}
+
+\textbf{Resource constraints} \\
+These set of constraints ensure that each slot satisfies the resource requirements of the application. As an example, the number of clbs inside a slot is calculated using \ref{clb_tot} where F(x$_i$+w$_i$) - F(x$_i$) is bounded below by 0 and above by U in such a way that \\
+0 $\leq$ F(x$_i$+w$_i$) - F(x$_i$) $\leq$ U 
+
+\subsubsection{linearization}
+In order to employ \ref{clb_tot}, which is a non linear function, as linear constraint it must be linearized. To linearize this function we define an intermediate real variable $\tau_{ijk}$. \\
+
+$\tau_{ijk}$ $\in$ [R] $\mid$ $\tau_{ijk}$ = $\beta_{ijk}$ $\cdot$ (F(x$_i$+w$_i$) - F(x$_i$))
+\begin{equation}
+C(x_i,y_i,w_i,h_i) = \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r-1} \tau_{ijk}
+\end{equation}
+
+$\quad$ $\tau_{ijk}$ $\geq$ 0 \\
+
+$\quad$ $\tau_{ijk}$ $\leq$ BIG$\_$M $\cdot$ $\beta_{ijk}$ \\ 
+
+$\quad$ $\tau_{ijk}$ $\leq$ F(x$_i$+w$_i$) - F(x$_i$) \\
+
+$\quad$ $\tau_{ijk}$ $\geq$ F(x$_i$+w$_i$) - F(x$_i$) - (1 - $\beta_{ijk}$) \\
+
+
+\begin{constraint} Each slot must incorporate enough resources. \\
+\begin{equation}
+\begin{split}
+clb\_req_i = \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r-1} \tau_{ijk}
+\end{split}
+\end{equation}
+\end{constraint}
+
+
+\textbf{Interference constraints} \\
+Interference can be between two slots 
+\textit{constriant 10}: A frame (tile) is the smallest reconfigurable physical region and it spans one clock region high and one resource type wide. A Reconfigurable Frame can not contain logic from more than one reconfigurable partition hence the boundaries of a slot S$_i$ must be forced to fit in to clock region boundaries. 
+This constraints is enforced by forcing all the rows in a clock region to also be included in the slot if atleast one is included i.e., if one row in a clock region j is part of a slot then the remaining rows within the clock region j must also be forced to be part of the same slot to satisfy this constraint. \\
+To help us set this constraint we define an intermediate variable l$_{j}$ which is the sum of $\beta_{ijk}$ in clock region j
+%$\forall$ rows in clock region i, l is the sum of all $\beta_{ijk}$ within the clock region i.e.,
+
+\begin{equation}
+\begin{split}
+l_j = \sum_{k=0}^{r-1} \beta_{ijk}
 \end{split}
 \end{equation}
 
-\textbf{Constraint 2}: A frame (tile) is the smallest reconfigurable physical region and it spans one clock region high and one resource type wide. A Reconfigurable Frame can not contain logic from more than one Reconfigurable Partition. Two slots S$_1$ \{x$_1$, y$_1$, w$_1$, h$_1$\} and S$_2$\{ x$_2$, y$_2$, w$_2$, h$_2$ \} do not interfere i.e. do not have at least one common tile between them, under the following conditions \\
+then the following constraint will force the slot boundaries to be aligned with the clock region boundaries by forcing $\beta_{ijk}$ to become part of the slot if at least one row with in the same clock region becomes part of slot S$_i$
+\begin{equation}
+\begin{split}
+\beta_{ijk} \geq \sum_{k=0}^{r-1}  (l_j - beta_{ijk}) / (r - 1)
+\end{split}
+\end{equation}
 
+\begin{constraint}: two regions S$_i$ and S$_k$ are said to be not interfering under the following conditions
 \begin{algorithmic}
-\IF{x$_1$ $\leq$ x$_2$ and y$_1$ $\leq$ y$_2$}
-	\STATE x$_1$ + w$_1$ $<$ x$_2$ or y$_1$ + h$_1$ $<$ y$_2$
-\ELSIF {x$_1$ $\geq$ x$_2$ and y$_1$ $\geq$ y$_2$}
-	\STATE x$_2$ + w$_2$ $<$ x$_1$ or y$_2$ + h$_2$ $<$ y$_1$
-\ELSIF {x$_1$ $<$ x$_2$ and y$_1$ $>$ y$_2$}
-	\STATE x$_1$ + w$_1$ $<$ x$_2$ or y$_2$ + h$_2$ $<$ y$_1$
+\IF{x$_i$ $\leq$ x$_k$ and y$_i$ $\leq$ y$_k$}
+	\STATE x$_i$ + w$_i$ $<$ x$_k$ or y$_i$ + h$_i$ $<$ y$_k$
+\ELSIF {x$_i$ $\geq$ x$_k$ and y$_i$ $\geq$ y$_k$}
+	\STATE x$_i$ + w$_k$ $<$ x$_i$ or y$_k$ + h$_k$ $<$ y$_i$
+\ELSIF {x$_1$ $<$ x$_k$ and y$_i$ $>$ y$_k$}
+	\STATE x$_i$ + w$_i$ $<$ x$_k$ or y$_k$ + h$_k$ $<$ y$_i$
 \ELSE
-	\STATE x$_2$ + w$_2$ $<$ x$_2$ or y$_1$ + h$_1$ $<$ y$_2$
+	\STATE x$_k$ + w$_k$ $<$ x$_k$ or y$_i$ + h$_i$ $<$ y$_k$
 \ENDIF
 \end{algorithmic}
+\end{constraint}
 
-Hence using the conditions above $\Delta_{ik}$ which is used to test interference between slots S$_i$ and S$_k$ is expressed as
+This condition can be encoded into a set of MILP constraints as follows \\
 \begin{equation}
 \begin{split}
-\Delta_{ik} = \gamma_{ik}(1-(x_k-x_i-w_i)) \cdot \theta(1-(y_k-y_i-h_i))  \quad + \\
-			   	(1-\gamma_{ik})(1-(x_i-x_k-w_k)) \cdot (1-\theta_{ik})(1-(y_i-y_k-h_k))\quad  + \\
-			   \gamma_{ik}(1-(x_k-x	_i-w_i)) \cdot (1-\theta_{ik})(1-(y_i-y_k-h_k))\quad + \\
-			   (1-\gamma_{ik})(1-(x_i-x_k-h_k)) \cdot \theta(1-(y_k-y_i-h_i)) 
+\delta_{ik} & \geq \gamma_{ik} + \theta_{ik} + \Gamma_{ik} + \Omega_{ik} - 3 \\
+\delta_{ik} & \geq (1 - \gamma_{ik}) + \theta_{ik} + \eta_{ik} + \Omega_{ik} - 3 \\
+\delta_{ik} & \geq \gamma_{ik} +(1 - \theta_{ik}) + \Gamma_{ik} + \Psi_{ik} - 3 \\
+\delta_{ik} & \geq (1 - \gamma_{ik}) + (1 - \theta_{ik}) + \eta_{ik} + \Psi_{ik} - 3 \\
+\delta_{ik} & = 0 \\
 \end{split}
 \end{equation}
 
-Therefore for N slots on an FPGA it can be said that slot S$_i$ faces no interferance from the N-1 slots if
-\begin{equation}
-\sum_{k=1}^{N-1} \Delta_{ik} = 0
-\end{equation}  
- 
-\textbf{constraint 3}: Global resources, clock resources (central clock column, BUFG, BUFR, MMCM etc...), static components (BSCAN, ICAP, XADC etc...) must not be included in the rectangles. The $\rho$ and $\nu$ vectors contain the x and y coordinates of these resources on the FPGA fabric. These resources are not included in a slot S$_i$ if 
+\textbf{Interference with Forbidden slots}
+
+\begin{constraint}: As stated before forbidden regions are also modeled as a normal slots hence the constraint for non intereference between a slot S$_i$ and a forbidden region F$_k$ can be set in the same way as done in constraint 11
 \begin{equation}
 \begin{split}
-(x_i, x_i+w_i) \notin \rho \\
-(y_i, y_i+h_i) \notin \nu
+\delta_{ik} & \geq \mu_{ik} + \nu_{ik} + fbdn_1 + fbdn_3 - 3 \\
+\delta_{ik} & \geq (1 - \mu_{ik}) + \nu_{ik} + fbdn_2 + fbdn_3 - 3 \\
+\delta_{ik} & \geq \mu_{ik} + (1 - \nu_{ik}) + fbdn_1 + fbdn_4 - 3 \\
+\delta_{ik} & \geq (1 - \mu_{ik}) + (1 - \nu_{ik}) + fbdn_2 + fbdn_4 - 3 \\
+\delta_{ik} & = 0 \\
 \end{split}
 \end{equation}
+\end{constraint}
 
-\textbf{constraint 4}: The left and right edges of the rectangles must be placed between CLB-CLB, CLB-BRAM or CLB-DSP and not between two interconnect columns (INT-INT).
 
-\textbf{constraint 5}: The number of wasted resources in a slot S$_i$ must be bounded. Resources are considered wasted if they are included in a slot while not being used.  The wasted resources D$_{w}$, B$_w$ and C$_w$ in slot S$_i$ can be calculated as
+\section{Experiemtnal Results}
+\subsection{Experimental Setup}
+How was the experiment implmented i.e, with what kind of prog. langaguge, on what optimization tool, on what platforms...
+What is the system being tested for ? What is the compositon of the synthethic task suite used for testing. What type of FPGAs are modeled ?  What are the challenges when switiching between models.  \\
+
+
+The system is tested for Exec time Vs Num of Reconfigurable regions and Exec time Vs \%of resources used by the system on both zynq and virtex\\
+
+The system is also tested for \% of wasted resources (coeficients used to set allowed percentage of resources to be wasted \%)VS Exec time on both virtex and zynq. The average wasted resources are also reported when not imposing these constraints and what effect it has on exec time and feasibility in general. my guess is that upto a certain point (upto a certain \% of utilization of resources) not imposing these constraints improves the exec time but after the utilization increases (i.e., more applications require more resources) not imposing these coeffecients leads to infeasible constrants. This has to be tested with a carefully designed test suit which will test the limist of the platform. \\
+
+Finally a case study on a real application on Zynq. 
+
+this non linear function can be converted into a linear form according to \cite{1} in the following form
 \begin{equation}
-\begin{split}
-D_w = D_i - DSP(x_i, y_i, w_i, h_i) \\
-B_w = B_i - BRAM(x_i, y_i, w_i, h_i) \\
-C_w = C_i - CLB(x_i, y_i, w_i, h_i) \\ 
-\end{split}
+BRAM(x_i,w_i) = \sum_{k=0}^{H-1} (\beta_k L + \tau)
+subject to
+\tau \geq m(x_i, w_i)- \beta_k L -U(1-\beta_k)
 \end{equation}
-
-Hence the constraint on wasted resources in S$_i$ can be expressed as 
-\begin{equation}
-\alpha_i \leq (\phi_d \cdot D_w) + (\phi_b \cdot B_w) + (\phi_c \cdot C_w)
-\end{equation}
-where $\phi_d$, $\phi_b$ and $\phi_c$ are the weights which signify the importance of resources. All FPGA resources are not equally valuable hence wasting DSPs is worse than BRAMs which in turn is worse than CLBs. Accordingly 
-\begin{equation}
-\phi_d > \phi_b > \phi_c
-\end{equation}
-
-\textbf{constraint 6}: Other constraints such as minimal wire length between slots (to reduce routing delay and power consumption) can be used as constraints to choose the optimal slots \\
+where L and U represent lower and upper bounds of m(x$_i$,w$_i$) i.e. L $\leq$ m(x$_i$, w$_i$) $\leq$ U
 
 \end{document}

@@ -1,0 +1,216 @@
+4,5d3
+< #include "../../../floorplan/engine/include/model.h"
+< 
+16,18c14,15
+< #define MAX_SLOTS 100
+< unsigned long H, W;
+< unsigned long num_slots;
+---
+> unsigned long H = 20, W = 29;
+> unsigned long num_slots = 4;
+23c20,23
+< 
+---
+> unsigned long res_req[] = {140, 50, 160, 15, 160, 8, 28, 24};
+> unsigned long bram_req[] = {12, 10, 10, 0, 0, 0, 0, 0};
+> unsigned long dsp_req[] = {0, 12, 0, 0, 0, 0, 0, 0};
+> unsigned long fs [2][4] = {{10, 0, 1, H}, {15, 0, 1, H}};
+27,34c27,29
+< unsigned long clb_max = 10000;
+< unsigned long bram_max = 10000;
+< unsigned long dsp_max = 10000;
+< 
+< vector<int> clb_req (MAX_SLOTS);
+< vector<int> bram_req(MAX_SLOTS);
+< vector<int> dsp_req(MAX_SLOTS);
+< Vecpos fs(MAX_SLOTS);
+---
+> unsigned long clb_max = 10000, clb_min = 1;
+> unsigned long bram_max = 10000, bram_min = 1;
+> unsigned long dsp_max = 10000, dsp_min = 1;
+36c31
+< int solve_milp(param_from_solver *to_sim)
+---
+> int solve_milp() 
+174c169
+< //#ifdef dspp
+---
+> #ifdef dspp
+195c190
+< //#endif
+---
+> #endif
+382c377
+< //#ifdef fbdn
+---
+> #ifdef fbdn
+481c476
+< //#endif
+---
+> #endif
+712c707
+< //#ifdef dspp
+---
+> #ifdef dspp
+753c748
+< //#endif
+---
+> #endif
+758a754,788
+> /*        for(i = 0; i < num_slots; i++) {
+>             GRBLinExpr exp_tau, exp_res, exp_bram, exp_dsp;
+> 
+>             for(k = 0; k < num_rows; k++) {
+>                 model.addConstr(tau[0][i][k] <= 1000 * beta[i][k], "58");
+>                 model.addConstr(tau[0][i][k] <= clb[i][1] - clb[i][0], "59");
+>                 model.addConstr(tau[0][i][k] >= (clb[i][1] - clb[i][0]) - (1 - beta[i][k]) * clb_max, "60");
+>                 model.addConstr(tau[0][i][k] >= 0, "15");
+>                 
+>                 model.addConstr(tau[1][i][k] <= 1000 * beta[i][k], "61");
+>                 model.addConstr(tau[1][i][k] <= bram[i][1] - bram[i][0], "62");
+>                 model.addConstr(tau[1][i][k] >= (bram[i][1] - bram[i][0]) - (1 - beta[i][k]) * bram_max, "63");
+>                 model.addConstr(tau[1][i][k] >= 0, "53");
+> #ifdef dspp
+>                 model.addConstr(tau[2][i][k] <= 1000 * beta[i][k], "64");
+>                 model.addConstr(tau[2][i][k] <= dsp[i][1] - dsp[i][0], "65");
+>                 model.addConstr(tau[2][i][k] >= (dsp[i][1] - dsp[i][0]) - (1 - beta[i][k]) * dsp_max, "66");
+>                 model.addConstr(tau[2][i][k] >= 0, "67");
+>                 
+>                 exp_dsp  += tau[2][i][k];
+> #endif
+>                 exp_res += tau[0][i][k];
+>                 exp_bram += tau[1][i][k];
+>            }
+>             model.addConstr(5 * exp_res >= res_req[i],"68"); 
+>             model.addConstr((5 * exp_res) - res_req[i] <= 0.5 * res_req[i],"168"); 
+>             model.addConstr(exp_bram >= bram_req[i],"69");
+>             //model.addConstr(exp_bram - bram_req[i] <= 0.8 * (bram_req[i]),"169");
+> #ifdef dspp
+>             model.addConstr(2 * exp_dsp >= dsp_req[i],"70"); 
+>             model.addConstr((2 * exp_dsp) - dsp_req[i] <= 0.9 * dsp_req[i], "170"); 
+> #endif
+>         }
+> */
+> 
+784c814
+<             model.addConstr(5 * exp_res >= clb_req[i],"68");
+---
+>             model.addConstr(5 * exp_res >= res_req[i],"68");
+832c862
+< //#ifdef fbdn
+---
+> #ifdef fbdn
+839,844c869,874
+<                 model.addConstr(BIG_M * mu[i][k]     >= x[k][0] - fs[i].x, "74");
+<                 model.addConstr(BIG_M * nu[i][k]     >= y[k]    - fs[i].y, "75");
+<                 model.addConstr(BIG_M * fbdn_1[i][k] >= fs[i].x + fs[i].w - x[k][0] + 1, "76");
+<                 model.addConstr(BIG_M * fbdn_2[i][k] >= x[k][1]    - fs[i].x + 1, "77");
+<                 model.addConstr(BIG_M * fbdn_3[i][k] >= fs[i].y + fs[i].h - y[k] + 1, "78");
+<                 model.addConstr(BIG_M * fbdn_4[i][k] >= y[k] + h[k] - fs[i].y + 1, "79");
+---
+>                 model.addConstr(BIG_M * mu[i][k]     >= x[k][0] - fs[i][0], "74");
+>                 model.addConstr(BIG_M * nu[i][k]     >= y[k]    - fs[i][1], "75");
+>                 model.addConstr(BIG_M * fbdn_1[i][k] >= fs[i][0] + fs[i][2] - x[k][0] + 1, "76");
+>                 model.addConstr(BIG_M * fbdn_2[i][k] >= x[k][1]    - fs[i][0] + 1, "77");
+>                 model.addConstr(BIG_M * fbdn_3[i][k] >= fs[i][1] + fs[i][3] - y[k] + 1, "78");
+>                 model.addConstr(BIG_M * fbdn_4[i][k] >= y[k] + h[k] - fs[i][1] + 1, "79");
+867c897
+< //#endif
+---
+> #endif 
+872,873d901
+<         model.set(GRB_IntParam_Threads, 8);
+<         model.set(GRB_DoubleParam_TimeLimit, 120);
+889d916
+< 
+896c923
+<                      clb[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 5 << "\t" << clb_req[i]
+---
+>                      clb[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 5 << "\t" << res_req[i]
+901a929
+> #ifdef dspp
+905c933,935
+< 
+---
+> #else 
+>                    <<endl;
+> #endif 
+907a938
+> //#ifdef pws
+909,923c940,947
+<                     (*to_sim->x)[i] = (int) x[i][0].get(GRB_DoubleAttr_X);
+<                     (*to_sim->y)[i] = (int) y[i].get(GRB_DoubleAttr_X);
+<                     (*to_sim->w)[i] =  (int) w[i].get(GRB_DoubleAttr_X);
+<                     (*to_sim->h)[i] = (int) h[i].get(GRB_DoubleAttr_X);
+< 
+<                     for(k=0; k < 2; k++) {
+<                         for(l = 0; l < 3; l++)
+<                          cout <<"z" << l << " " << z[0][i][k][l].get(GRB_DoubleAttr_X) << "\t";
+<                          cout <<endl;
+<                     }
+< 
+<                     for(l =0; l < num_clk_regs; l++)
+<                     for(k =0; k < num_rows; k++)
+<                         cout << "b"<< k << " " <<beta[i][l][k].get(GRB_DoubleAttr_X) << " " ;
+<                     //std::cout << "kappa" << kappa[1][i].get(GRB_DoubleAttr_X) << res_constr[0][i].get(GRB_DoubleAttr_X) << res_constr[1][i].get(GRB_DoubleAttr_X) << endl;
+---
+>                 for(k=0; k < 2; k++) {
+>                     for(l = 0; l < 3; l++)
+>                      cout <<"z" << l << " " << z[0][i][k][l].get(GRB_DoubleAttr_X) << "\t";
+>                      cout <<endl;
+>                }
+> //#endif
+> /*                for(k =0; k < num_rows; k++)
+>                     cout << "b"<< k << " " <<beta[i][k].get(GRB_DoubleAttr_X) << " " ;
+925c949,953
+<                     cout <<  endl;
+---
+>                                cout <<  endl;
+>   */
+> 			for(l =0; l < num_clk_regs; l++)
+>                 for(k =0; k < num_rows; k++)
+>                     cout << "b"<< k << " " <<beta[i][l][k].get(GRB_DoubleAttr_X) << " " ; 
+927,928d954
+<             }
+<          }
+929a956,959
+>           }
+>                           
+> }
+>     
+959c989
+< int init_vectors(param_to_solver *param, param_from_solver *to_sim)
+---
+> int main()
+961,982c991,993
+<     num_slots = param->num_slots;
+<     num_forbidden_slots = param->forbidden_slots;
+<     num_rows = param->num_rows;
+<     H = 20;
+<     W = param->width;
+<     //num_forbidden_slots = param->forbidden_slots;
+< 
+<     unsigned long i;
+< 
+<     for(i = 0; i < num_slots; i++) {
+<         clb_req[i]  = (*param->clb)[i];
+<         bram_req[i] = (*param->bram)[i];
+<         dsp_req[i]  = (*param->dsp)[i];
+<     }
+< 
+<     for(i = 0; i < num_forbidden_slots; i++) {
+<         fs[i] = (*param->fbdn_slot)[i];
+<         cout <<"forbidden " << num_forbidden_slots << " " << fs[i].x << " " << fs[i].y << " " << fs[i].h << " " << fs[i].w <<endl;
+<     }
+<     cout << "finished copying" << endl;
+< 
+<     status = solve_milp(to_sim);
+---
+>     int status;
+>     status = solve_milp();
+>     
+984,985c995
+<     }
+< 
+---
+> }

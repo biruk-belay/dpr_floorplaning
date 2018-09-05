@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.1.26)  3 AUG 2018 07:50
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.8.30)  5 SEP 2018 20:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -417,158 +417,155 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-LaTeX Font Info:    Try loading font information for U+msa on input line 33.
+\c@constraint=\count117
+LaTeX Font Info:    Try loading font information for U+msa on input line 35.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 33.
+LaTeX Font Info:    Try loading font information for U+msb on input line 35.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 33.
-LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <6> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 36.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 35.
+LaTeX Font Info:    Try loading font information for OMS+ptm on input line 46.
 
-Underfull \hbox (badness 10000) in paragraph at lines 46--48
-
- []
-
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 49.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsptm.fd
 File: omsptm.fd 
 )
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 49.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 46.
 
-Underfull \hbox (badness 10000) in paragraph at lines 49--51
-
- []
-
-<graphics/fpga_1.png, id=1, 1371.1225pt x 770.88pt>
-File: graphics/fpga_1.png Graphic file (type png)
- <use graphics/fpga_1.png>
-Package pdftex.def Info: graphics/fpga_1.png used on input line 55.
-(pdftex.def)             Requested size: 516.01077pt x 142.25769pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 54--56
-[]\OT1/ptm/m/n/10 Consider the re-source lay-out in one of the
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 54--56
-\OT1/ptm/m/n/10 quad-rants of xc7z015 FPGA in the pic-ture be-low
- []
-
-
-Overfull \hbox (264.01077pt too wide) in paragraph at lines 54--56
-[] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 54--56
+Underfull \hbox (badness 10000) in paragraph at lines 46--47
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 54--56
+Underfull \hbox (badness 10000) in paragraph at lines 46--47
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 57--58
+Underfull \hbox (badness 10000) in paragraph at lines 48--49
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 77--78
+Underfull \hbox (badness 10000) in paragraph at lines 50--52
 
  []
 
 
-Overfull \hbox (19.21094pt too wide) detected at line 80
-\OML/cmm/m/it/10 BRAM\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; y[]; w[]; h[]\OT1/c
-mr/m/n/10 ) = (\OML/cmm/m/it/10 A\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[] \OT1/cmr
-/m/n/10 + \OML/cmm/m/it/10 w[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m
-/it/10 A\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]\OT1/cmr/m/n/10 )) \OMS/cmsy/m/n/1
-0 ^^A \OT1/cmr/m/n/10 (\OML/cmm/m/it/10 B\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 y[] 
-\OT1/cmr/m/n/10 + \OML/cmm/m/it/10 h[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \O
-ML/cmm/m/it/10 B\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 y[]\OT1/cmr/m/n/10 ))
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 85--87
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
 
  []
 
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
- <./graphics/fpga_1.png>]
+]
+Underfull \hbox (badness 10000) in paragraph at lines 108--112
 
-LaTeX Warning: Citation `1' on page 2 undefined on input line 88.
+ []
 
 
-Overfull \hbox (54.70624pt too wide) detected at line 93
+Underfull \hbox (badness 2689) in paragraph at lines 108--112
+\OT1/ptm/m/n/10 Variables re-lated to the size, lo-ca-tion and num-ber of
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--175
+
+ []
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 209--211
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 250--251
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 257--258
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 259--260
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 261--262
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 263--264
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 266--267
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 295--297
+[][]\OT1/ptm/m/it/10 Constraint 6: \OT1/ptm/m/n/10 : two re-gions S$[]$ and S$[
+]$ are
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 295--297
+\OT1/ptm/m/n/10 said to be not in-ter-fer-ing un-der the fol-low-ing
+ []
+
+[3]
+Underfull \hbox (badness 1735) in paragraph at lines 309--310
+[]\OT1/ptm/m/n/10 This con-di-tion can be en-coded into a set of MILP
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 309--310
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 337--339
+
+ []
+
+
+Underfull \hbox (badness 4608) in paragraph at lines 341--342
+[]\OT1/ptm/m/n/10 The sys-tem is tested for Exec time Vs Num of
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 341--342
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 343--344
+
+ []
+
+
+LaTeX Warning: Citation `1' on page 4 undefined on input line 347.
+
+
+Overfull \hbox (54.70624pt too wide) detected at line 352
 \OML/cmm/m/it/10 BRAM\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; w[]\OT1/cmr/m/n/10 
 ) = [](\OML/cmm/m/it/10 ^^L[]L \OT1/cmr/m/n/10 + \OML/cmm/m/it/10 ^^\\OT1/cmr/m
 /n/10 )\OML/cmm/m/it/10 subjectto^^\ \OMS/cmsy/m/n/10 ^^U \OML/cmm/m/it/10 m\OT
 1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; w[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \
 OML/cmm/m/it/10 ^^L[]L \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 U\OT1/cmr/m/n/10 (
 1 \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/it/10 ^^L[]\OT1/cmr/m/n/10 )
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 112--113
-
- []
-
-
-Overfull \hbox (9.90182pt too wide) detected at line 115
-\OML/cmm/m/it/10 DSP\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; y[]; w[]; h[]\OT1/cm
-r/m/n/10 ) = (\OML/cmm/m/it/10 C\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[] \OT1/cmr/
-m/n/10 + \OML/cmm/m/it/10 w[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/
-it/10 C\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]\OT1/cmr/m/n/10 )) \OMS/cmsy/m/n/10
- ^^A \OT1/cmr/m/n/10 (\OML/cmm/m/it/10 D\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 y[] \
-OT1/cmr/m/n/10 + \OML/cmm/m/it/10 h[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \OM
-L/cmm/m/it/10 D\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 y[]\OT1/cmr/m/n/10 ))
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 139--140
-
- []
-
-
-Overfull \hbox (8.10742pt too wide) detected at line 142
-\OML/cmm/m/it/10 CLB\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]; y[]; w[]; h[]\OT1/cm
-r/m/n/10 ) = (\OML/cmm/m/it/10 F\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[] \OT1/cmr/
-m/n/10 + \OML/cmm/m/it/10 w[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \OML/cmm/m/
-it/10 F\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 x[]\OT1/cmr/m/n/10 )) \OMS/cmsy/m/n/10
- ^^A \OT1/cmr/m/n/10 (\OML/cmm/m/it/10 G\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 y[] \
-OT1/cmr/m/n/10 + \OML/cmm/m/it/10 h[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^@ \OM
-L/cmm/m/it/10 G\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 y[]\OT1/cmr/m/n/10 ))
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 145--146
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 190--191
-
- []
-
-[2]
-Overfull \hbox (23.3107pt too wide) in paragraph at lines 212--212
-[] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 247--248
-
  []
 
 
@@ -582,36 +579,35 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[3
-
-] (./conference_041818.aux)
+[4] (./conference_041818.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 4467 strings out of 493029
- 64504 string characters out of 6136234
- 138746 words of memory out of 5000000
- 7930 multiletter control sequences out of 15000+600000
- 48089 words of font info for 107 fonts, out of 8000000 for 9000
+ 4455 strings out of 493029
+ 64357 string characters out of 6136234
+ 139755 words of memory out of 5000000
+ 7926 multiletter control sequences out of 15000+600000
+ 44918 words of font info for 99 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,21n,35p,591b,358s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,19n,35p,1087b,352s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><
-/usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/tex
-live/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/urw/times/utmri8a.pfb>
-Output written on conference_041818.pdf (3 pages, 155083 bytes).
+/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/urw/times/utmri8a.pfb>
+Output written on conference_041818.pdf (4 pages, 146329 bytes).
 PDF statistics:
- 62 PDF objects out of 1000 (max. 8388607)
- 43 compressed objects within 1 object stream
+ 66 PDF objects out of 1000 (max. 8388607)
+ 47 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
