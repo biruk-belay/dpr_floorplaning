@@ -1,0 +1,23 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\title{MIFPA: MILP based FloorPlan Automation for Partial Reconfiguration\\
+%{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
+%should not be used}
+}
+
+\begin{document}
+
+\author{\IEEEauthorblockN{Biruk B. Seyoum, Alessandro Biondi and Giorgio Butazzo}
+\IEEEauthorblockA{\textit{Scuola Superiore Sant'Anna}, \\
+ {\textit{Pisa, Italy}} \\
+email: \{b.seyoum, alessandro.biondi, giorgio.butazzo\}@santannapisa.it}
+}
+
+\maketitle
+
+\begin{abstract}
+Floorplanning is a mandatory design step in designs involving partial reconfiguration (PR) that greatly influences the performance of the whole system. Existing tools for PR, which are provided by FPGA vendors, allow floorplanning to be performed manually. This method besides being highly time-consuming, demands a good knowledge of the architecture and organization of the hardware for an optimal floorplan. To solve this problem, in this paper an automated floorplanner which is based on Mixed Integer Programming (MILP) is presented. The most common approach by the state of the art automated MILP (or other optimization method) based floorplanners is to apply MILP (or other optimization methods) for finding the optimal placement from a pre-enumerated list of possible placements. Meanwhile, in this work, the floorplanning problem was directly solved as an optimization problem by modeling the FPGA resources as a set of MILP constraints along with the standard PR related constraints. The performance of the proposed approach was tested using a synthethic benchmark suite. Its performance was also compared with the state of the art MILP based floorplanners for average execution time. Finally, the floorplanner was used in a real case study. This approach was observed to improve the execution time reported in the state of the art by orders of magnitude.
+ 
+\end{abstract}
+\end{document}

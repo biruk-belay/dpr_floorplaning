@@ -61,10 +61,10 @@ Floorplanning is a step in the fpga design flow where the placement of a region 
 \item Left and right edges of the RR must be placed in proper positions
 \end{itemize}
 
-Besides respecting the DPR requirements a good floorplan must minimize the wasted resources in a RR and also the distance between RRs (intra RR wirelength. If a RR connects to a static block such as an I/O block then the distance between the RR and the static block should also be minimized.
+Besides respecting the DPR requirements a good floorplan must minimize the wasted resources in a RR and also the distance between RRs (intra RR wirelength) and the distance between a RR and a static resource it connects to such as an I/O block.
 
 \section{Proposed Approach} 
-In this work the FPGA was modelled the FPGA with a x-y coordinate system. A single unit on the x axis equals one column wide and one unit on the y axis (a row) equals to the height of one bram. BRAMs were chosen as the unit for a single row on the y axis since for virtex and 7 series FPGAs, which were utilized in this work, the number of BRAMs per tile is less than the number of CLBs per tile or DSPs per tile. For example, in one of the FPGAs that was used in this work, xc7z045fbv676, a single tile consisted of 50 CLBs, 10 Brams and 20 DSPs. \\ 
+This work consists of modelling the FPGA with a x-y coordinate system. A single unit on the x axis equals one column wide and one unit on the y axis (a row) equals to the height of one bram. BRAMs were chosen as the unit for a single row on the y axis since for virtex and 7 series FPGAs, which were utilized in this work, the number of BRAMs per tile is less than the number of CLBs per tile or DSPs per tile. For example, in one of the FPGAs that was used in this work, xc7z045fbv676, a single tile consisted of 50 CLBs, 10 Brams and 20 DSPs. \\ 
 The origin of the coordinate system is located at the bottom left corner. There are \textbf{W} columns on the x axis and \textbf{N} rows on the y axis. A rectangular reconfigurable region, \textbf{R}$_i$, can be described with four parameters i.e., the two bottom left coordinates \textbf{x}$_i$, \textbf{y}$_i$ and the width \textbf{w}$_i$ and height \textbf{h}$_i$. An FPGA is composed of \textbf{C} clock regions. If there are C$_h$ number of clock regions in the horizontal direction and C$_v$ number of clock regions in the vertical direction then the total number of clock regions \textbf{C} is defined as
 \begin{equation}
 C = C_h \cdot C_v
