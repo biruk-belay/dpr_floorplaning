@@ -427,7 +427,7 @@ void fp::start_pressed()
 
     for(m = 0; m < num_slots; m++) {
         scene.addRect(x_vector[m] / scale, y_vector[m] / scale, w_vector[m] / scale, h_vector[m] / scale, slot_pen, brush);
-        qDebug() << x_vector[m] << " " << y_vector[m] << " " << w_vector[m] << " " << h_vector[m] << endl;
+//        qDebug() << x_vector[m] << " " << y_vector[m] << " " << w_vector[m] << " " << h_vector[m] << endl;
     }
 }
 
@@ -435,7 +435,7 @@ void fp::plot_rects(param_from_solver *fs)
 {
     unsigned long int i;
 
-    qDebug() <<"total height" << total_height <<endl;
+    //qDebug() <<"total height" << total_height <<endl;
 
     /*The information about the total height must be integral part of the FPGA description*/
     for(i = 0; i < num_slots; i++) {
@@ -444,7 +444,7 @@ void fp::plot_rects(param_from_solver *fs)
         h_vector[i] = (*fs->h)[i] * bram_height;
         w_vector[i] = (*fs->w)[i] * clb_width;
 
-        qDebug() << "total height " <<total_height <<endl;
+  //      qDebug() << "total height " <<total_height <<endl;
     }
 }
 
@@ -477,8 +477,5 @@ void fp::set_browse()
         }
     }
 
-    for(k = 0; k < row; k++)
-    for(i = 0; i < col; i++);
-
-    qDebug() <<"file path "  << file_path << endl;
+//    qDebug() <<"file path "  << file_path << endl;
 }

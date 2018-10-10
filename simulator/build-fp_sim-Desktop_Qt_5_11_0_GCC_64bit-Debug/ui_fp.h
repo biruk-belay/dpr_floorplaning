@@ -25,7 +25,6 @@ class Ui_fp
 public:
     QWidget *centralWidget;
     QPushButton *pushButton;
-    QPushButton *pushButton_2;
     QPushButton *pushButton_3;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -41,9 +40,6 @@ public:
         pushButton = new QPushButton(centralWidget);
         pushButton->setObjectName(QStringLiteral("pushButton"));
         pushButton->setGeometry(QRect(270, 220, 89, 25));
-        pushButton_2 = new QPushButton(centralWidget);
-        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
-        pushButton_2->setGeometry(QRect(270, 150, 89, 25));
         pushButton_3 = new QPushButton(centralWidget);
         pushButton_3->setObjectName(QStringLiteral("pushButton_3"));
         pushButton_3->setGeometry(QRect(560, 150, 89, 25));
@@ -68,7 +64,6 @@ public:
     {
         fp->setWindowTitle(QApplication::translate("fp", "fp", nullptr));
         pushButton->setText(QApplication::translate("fp", "PushButton", nullptr));
-        pushButton_2->setText(QApplication::translate("fp", "PushButton", nullptr));
         pushButton_3->setText(QApplication::translate("fp", "PushButton", nullptr));
     } // retranslateUi
 
