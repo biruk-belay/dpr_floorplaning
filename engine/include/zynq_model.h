@@ -8,7 +8,7 @@ typedef struct {
     int h;
 }pos;
 */
-typedef std::vector<int>    Vec;
+typedef std::vector<unsigned long>    Vec;
 typedef std::vector<pos>    Vecpos;
 
 typedef struct {

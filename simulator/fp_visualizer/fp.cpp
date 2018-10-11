@@ -35,6 +35,7 @@ fp::fp(QWidget *parent) :
     connect(ui->enter_button, SIGNAL(released()),this, SLOT(enter_pressed()));
     connect(ui->start_fp, SIGNAL(released()), this, SLOT(start_pressed()));
     connect(ui->browse_button, SIGNAL(released()), this, SLOT(set_browse()));
+    connect(ui->set_util, SIGNAL(released()), this, SLOT(set_util()));
 
     for(i = 0; i < virt->num_forbidden_slots; i++)
         forbidden_region_virtex[i] = virt->forbidden_pos[i];
@@ -269,32 +270,13 @@ void fp::paint_zynq()
                 }
             }
 
- /*         if(is_forbidden) {
-                if(pos_ptr_x + j + 1 == zynq->clk_reg[i].forbidden_pos[forbdn_ptr]) {
-                    rec_pen.setColor(Qt::black);
-                    bound = 1; //zynq.clk_reg[i].dsp_per_column;
-                    rec_height = clk_reg_height; // bram_height;
-
-                if(forbdns - 1 !=  0)
-                    forbdn_ptr += 1;
-                else
-                    is_forbidden = false;
-                }
-            }
-*/
             for(k = 0; k < bound; k++) {
-                //brush.setColor(Qt::black);
-                //brush.setStyle(Qt::SolidPattern);
-
                 fp_rect = scene.addRect(pos_ptr_x * clb_width +  j * clb_width,
                                          pos_ptr_y * clb_height + k * rec_height,
                                         clb_width, rec_height, rec_pen, brush);
             }
-
-            //scene.setBackgroundBrush(fp::brush_background);
         }
-
-        }
+    }
 
 
     for(i = 0; i < zynq->num_forbidden_slots; i++) {
@@ -398,6 +380,12 @@ void fp::start_pressed()
     param.dsp  = &dsp_vector;
     param.num_slots = num_slots;
 
+    scene.clear();
+    if(type == ZYNQ)
+       paint_zynq();
+    else
+       paint_virtex();
+
     if(type == VIRTEX) {
         param.forbidden_slots = virt->num_forbidden_slots;
         param.num_rows = virt->num_rows;
@@ -473,9 +461,103 @@ void fp::set_browse()
 
             str = csv_data.get_value(i, k++);
             dsp_vector[ptr] = std::stoi(str);
-             k = 0;
+            k = 0;
+        }
+    }
+}
+
+void fp::set_util()
+{
+    unsigned long i;
+    int clb_tot, bram_tot, dsp_tot;
+    int clb_min, bram_min, dsp_min;
+    QString str;
+
+    //slot s1, s2, s3;
+    //slot sl_array[num_slots];
+     srand((unsigned)time(0));
+
+     str = ui->utilLineEdit->text();
+     utilization = str.toFloat();
+
+     qDebug() << "util is" << utilization << endl;
+
+     if(type == ZYNQ) {
+         clb_tot = ZYNQ_CLB_TOT;
+         bram_tot = ZYNQ_BRAM_TOT;
+         dsp_tot = ZYNQ_DSP_TOT;
+         clb_min = ZYNQ_CLB_MIN;
+         bram_min = ZYNQ_BRAM_MIN;
+         dsp_min = ZYNQ_DSP_MIN;
+     }
+
+     else if(type == VIRTEX) {
+         clb_tot = VIRTEX_CLB_TOT;
+         bram_tot = VIRTEX_BRAM_TOT;
+         dsp_tot = VIRTEX_DSP_TOT;
+         clb_min = VIRTEX_CLB_MIN;
+         bram_min = VIRTEX_BRAM_MIN;
+         dsp_min = VIRTEX_DSP_MIN;
+     }
+     do{
+         for(i = 0; i < num_slots; i++)
+             sl_array[i].clb = rand()%clb_tot;
+     }while(is_compatible(sl_array, num_slots, clb_tot, clb_min, CLB));
+
+     do{
+         for(i = 0; i < num_slots; i++)
+             sl_array[i].bram = rand()%bram_tot;
+     }while(is_compatible(sl_array, num_slots, bram_tot, bram_min, BRAM));
+
+     do{
+         for(i = 0; i < num_slots; i++)
+             sl_array[i].dsp = rand()%dsp_tot;
+     }while(is_compatible(sl_array, num_slots, dsp_tot, dsp_min, DSP));
+
+     for(i = 0; i < num_slots; i++)
+         cout<< "in slot " << i << " " << sl_array[i].clb <<" " << sl_array[i].bram <<" "<< sl_array[i].dsp << endl;
+
+    qDebug() << "set pressed" << endl;
+
+
+    if(num_slots != 0) {
+        for(i = 0; i < num_slots; i++) {
+            clb_vector[i] = sl_array[i].clb;
+            bram_vector[i] = sl_array[i].bram;
+            dsp_vector[i] = sl_array[i].dsp;
+        }
+    }
+}
+
+
+bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, unsigned long min, int type)
+{
+    unsigned long i, temp = 0;
+    unsigned long bram_max = 20, dsp_max = 40;;
+
+
+    for(i = 0; i < slot_num; i++) {
+        if(type == CLB) {
+            if((ptr[i]).clb < min)
+                return true;
+            temp += (ptr[i]).clb;
+        }
+
+        else if (type == BRAM){
+            if((ptr[i]).bram < min || (ptr[i]).bram > bram_max)
+                return true;
+            temp += (ptr[i]).bram;
+        }
+        else {
+            if((ptr[i]).dsp < min || (ptr[i]).dsp > dsp_max)
+                return true;
+            temp += (ptr[i]).dsp;
         }
     }
 
-//    qDebug() <<"file path "  << file_path << endl;
+    if(temp >= (int) max * utilization)
+            return true;
+    else
+        return false;
+
 }

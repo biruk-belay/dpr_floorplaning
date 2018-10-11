@@ -16,10 +16,10 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>350</y>
+     <x>80</x>
+     <y>410</y>
      <width>91</width>
-     <height>51</height>
+     <height>31</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -72,6 +72,16 @@
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout_2">
+    <item row="0" column="0">
+     <widget class="QLabel" name="slotLabel">
+      <property name="text">
+       <string>slot</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="comboBox_2"/>
+    </item>
     <item row="2" column="0">
      <widget class="QLabel" name="cLBLabel">
       <property name="text">
@@ -102,16 +112,6 @@
     <item row="4" column="1">
      <widget class="QLineEdit" name="dSPLineEdit"/>
     </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="comboBox_2"/>
-    </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="slotLabel">
-      <property name="text">
-       <string>slot</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_3">
@@ -132,7 +132,7 @@
   <widget class="QPushButton" name="enter_button">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>310</y>
      <width>89</width>
      <height>25</height>
@@ -193,7 +193,7 @@
   <widget class="QPushButton" name="browse_button">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>150</x>
      <y>310</y>
      <width>89</width>
      <height>25</height>
@@ -214,6 +214,52 @@
    </property>
    <property name="text">
     <string>FPGA</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="formLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>300</y>
+     <width>181</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout"/>
+  </widget>
+  <widget class="QWidget" name="formLayoutWidget_4">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>360</y>
+     <width>181</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout_4">
+    <item row="1" column="0">
+     <widget class="QLabel" name="utilLabel">
+      <property name="text">
+       <string>Util</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="utilLineEdit"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="set_util">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>360</y>
+     <width>81</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Set</string>
    </property>
   </widget>
  </widget>

@@ -2,8 +2,19 @@
 #define ZYNQ_H
 
 #define MAX_SLOTS 100
+#define CLB 0
+#define BRAM 1
+#define DSP 2
 
 //parameters for zynq
+#define ZYNQ_CLB_TOT 2200
+#define ZYNQ_BRAM_TOT 60
+#define ZYNQ_DSP_TOT 80
+
+#define ZYNQ_CLB_MIN 200
+#define ZYNQ_BRAM_MIN 0
+#define ZYNQ_DSP_MIN 0
+
 #define ZYNQ_FORBIDDEN 4
 #define ZYNQ_NUM_ROWS 10
 #define ZYNQ_WIDTH 29
@@ -16,10 +27,18 @@
 
 #define ZYNQ_CLK00_DSP 1
 #define ZYNQ_CLK01_DSP 1
-#define ZYNQ_CLK10_DSP 1
+#define ZYNQ_CLK10_DSP 1 
 #define ZYNQ_CLK11_DSP 1
 
 //parameters for virtex
+#define VIRTEX_CLB_TOT 27325
+#define VIRTEX_BRAM_TOT 545
+#define VIRTEX_DSP_TOT 900
+
+#define VIRTEX_CLB_MIN 400
+#define VIRTEX_BRAM_MIN 0
+#define VIRTEX_DSP_MIN 0
+
 #define VIRTEX_FORBIDDEN 10
 #define VIRTEX_NUM_ROWS 10
 #define VIRTEX_WIDTH 103
@@ -125,11 +144,7 @@ public:
                                           {14, 50,  1,  50}};
 
     int forbidden_regs[ZYNQ_CLK_REG] = {1, 1, 0, 0};
-/*    int forbidden_pos[ZYNQ_CLK_REG][3] = {{10, 0 ,0},
-                                          {10, 0, 0},
-                                          {0, 0, 0,},
-                                          {0, 0, 0}};
-*/
+
     void initialize_clk_reg();
     fpga();
 };
@@ -170,7 +185,6 @@ public:
     int dsp_pos[VIRTEX_CLK_REG][5] = {{7, 12, 23, 32}, {7, 12, 23, 32}, {7, 12, 23, 32}, {7, 12, 23, 32},
                                       {7, 12, 23, 32}, {23, 32}, {23, 32}, {59, 83, 95}, {59, 83, 95},
                                       {59, 83, 95}, {59, 83, 95}, {59, 83, 95}, {59, 83, 95}, {59, 83, 95}};
-
 
     unsigned long num_forbidden_slots = VIRTEX_FORBIDDEN;
     pos fbdn_pos[ZYNQ_FORBIDDEN + 1] =   {{10, 0, 1, ZYNQ_NUM_ROWS},

@@ -23,6 +23,11 @@ enum fpga_type {
 };
 
 typedef std::vector<pos> position_vec;
+typedef struct{
+    unsigned long clb;
+    unsigned long bram;
+    unsigned long dsp;
+}slot;
 
 class fp : public QDialog
 {
@@ -47,10 +52,13 @@ public:
     bool paint_rect = false;
     enum fpga_type type = ZYNQ;
     const int virtex_scale = 3;
+    float utilization;
 
-    std::vector<int> clb_vector =  std::vector<int>(MAX_SLOTS);
-    std::vector<int> bram_vector = std::vector<int>(MAX_SLOTS);
-    std::vector<int> dsp_vector =  std::vector<int>(MAX_SLOTS);
+    std::vector<unsigned long> clb_vector =  std::vector<unsigned long>(MAX_SLOTS);
+    std::vector<unsigned long> bram_vector = std::vector<unsigned long>(MAX_SLOTS);
+    std::vector<unsigned long> dsp_vector =  std::vector<unsigned long>(MAX_SLOTS);
+
+    std::vector<slot> sl_array = std::vector<slot>(MAX_SLOTS);
 
     std::vector<int> eng_x =  std::vector<int>(MAX_SLOTS);
     std::vector<int> eng_y = std::vector<int>(MAX_SLOTS);
@@ -77,6 +85,7 @@ public:
     void plot_rects(param_from_solver *);
     void paint_zynq();
     void paint_virtex();
+    bool is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, unsigned long min, int type);
 
 private:
     Ui::fp *ui;
@@ -87,6 +96,7 @@ private slots:
     void start_pressed();
     void set_browse();
     void fpga_pressed();
+    void set_util();
 };
 
 #endif // FP_H
