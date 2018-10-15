@@ -16,8 +16,8 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>410</y>
+     <x>70</x>
+     <y>440</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -68,7 +68,7 @@
      <x>10</x>
      <y>160</y>
      <width>183</width>
-     <height>132</height>
+     <height>143</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout_2">
@@ -89,9 +89,6 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="cLBLineEdit"/>
-    </item>
     <item row="3" column="0">
      <widget class="QLabel" name="bRAMLabel">
       <property name="text">
@@ -111,6 +108,9 @@
     </item>
     <item row="4" column="1">
      <widget class="QLineEdit" name="dSPLineEdit"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="cLBLineEdit"/>
     </item>
    </layout>
   </widget>
@@ -216,22 +216,11 @@
     <string>FPGA</string>
    </property>
   </widget>
-  <widget class="QWidget" name="formLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>9</x>
-     <y>300</y>
-     <width>181</width>
-     <height>80</height>
-    </rect>
-   </property>
-   <layout class="QFormLayout" name="formLayout"/>
-  </widget>
   <widget class="QWidget" name="formLayoutWidget_4">
    <property name="geometry">
     <rect>
-     <x>9</x>
-     <y>360</y>
+     <x>10</x>
+     <y>390</y>
      <width>181</width>
      <height>41</height>
     </rect>
@@ -253,7 +242,7 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>360</y>
+     <y>380</y>
      <width>81</width>
      <height>25</height>
     </rect>

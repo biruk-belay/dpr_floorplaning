@@ -471,7 +471,10 @@ void fp::set_util()
     unsigned long i;
     int clb_tot, bram_tot, dsp_tot;
     int clb_min, bram_min, dsp_min;
+    int clb_mod;
     QString str;
+    int temp_util = 0;
+    float util_temp = 0.0;
 
     //slot s1, s2, s3;
     //slot sl_array[num_slots];
@@ -483,12 +486,13 @@ void fp::set_util()
      qDebug() << "util is" << utilization << endl;
 
      if(type == ZYNQ) {
-         clb_tot = ZYNQ_CLB_TOT;
+         clb_tot  = ZYNQ_CLB_TOT;
          bram_tot = ZYNQ_BRAM_TOT;
-         dsp_tot = ZYNQ_DSP_TOT;
-         clb_min = ZYNQ_CLB_MIN;
+         dsp_tot  = ZYNQ_DSP_TOT;
+         clb_min  = ZYNQ_CLB_MIN;
          bram_min = ZYNQ_BRAM_MIN;
-         dsp_min = ZYNQ_DSP_MIN;
+         dsp_min  = ZYNQ_DSP_MIN;
+         clb_mod = clb_tot * utilization;
      }
 
      else if(type == VIRTEX) {
@@ -498,28 +502,35 @@ void fp::set_util()
          clb_min = VIRTEX_CLB_MIN;
          bram_min = VIRTEX_BRAM_MIN;
          dsp_min = VIRTEX_DSP_MIN;
+         clb_mod = clb_tot * utilization;
      }
-     do{
-         for(i = 0; i < num_slots; i++)
-             sl_array[i].clb = rand()%clb_tot;
-     }while(is_compatible(sl_array, num_slots, clb_tot, clb_min, CLB));
+
+     int mod_clb = (clb_tot * 2 * utilization) / num_slots;
+     int mod_bram = (bram_tot * 1 * utilization) / num_slots;
+     int mod_dsp = (dsp_tot * 1 * utilization) / num_slots;
 
      do{
+         for(i = 0; i < num_slots; i++) {
+             sl_array[i].clb = rand()%mod_clb;
+         }
+     }while(is_compatible(sl_array, num_slots, clb_tot, clb_min, CLB));
+/*
+     do{
          for(i = 0; i < num_slots; i++)
-             sl_array[i].bram = rand()%bram_tot;
+             sl_array[i].bram = rand()%mod_bram;//bram_tot;
      }while(is_compatible(sl_array, num_slots, bram_tot, bram_min, BRAM));
 
      do{
          for(i = 0; i < num_slots; i++)
-             sl_array[i].dsp = rand()%dsp_tot;
+             sl_array[i].dsp = rand()%mod_dsp; //dsp_tot;
      }while(is_compatible(sl_array, num_slots, dsp_tot, dsp_min, DSP));
-
-     for(i = 0; i < num_slots; i++)
-         cout<< "in slot " << i << " " << sl_array[i].clb <<" " << sl_array[i].bram <<" "<< sl_array[i].dsp << endl;
-
-    qDebug() << "set pressed" << endl;
-
-
+*/
+     for(i = 0; i < num_slots; i++) {
+         qDebug() << "in slot " << i << " " << sl_array[i].clb <<" " << sl_array[i].bram <<" "<< sl_array[i].dsp << endl;
+         temp_util += sl_array[i].clb;
+     }
+    util_temp = (float) temp_util / clb_tot;
+    qDebug() << "utilization " << util_temp << endl;
     if(num_slots != 0) {
         for(i = 0; i < num_slots; i++) {
             clb_vector[i] = sl_array[i].clb;
@@ -529,12 +540,19 @@ void fp::set_util()
     }
 }
 
-
 bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, unsigned long min, int type)
 {
     unsigned long i, temp = 0;
-    unsigned long bram_max = 20, dsp_max = 40;;
+    unsigned long bram_max, dsp_max;
 
+    if(fp::type == ZYNQ) {
+        bram_max = ZYNQ_BRAM_TOT / 4;
+        dsp_max = ZYNQ_DSP_TOT / 4;
+    }
+    else{
+        bram_max = 50; //VIRTEX_BRAM_TOT / 20;
+        dsp_max = 100; //VIRTEX_DSP_TOT / 20;
+    }
 
     for(i = 0; i < slot_num; i++) {
         if(type == CLB) {
@@ -542,7 +560,7 @@ bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, u
                 return true;
             temp += (ptr[i]).clb;
         }
-
+/*
         else if (type == BRAM){
             if((ptr[i]).bram < min || (ptr[i]).bram > bram_max)
                 return true;
@@ -552,12 +570,14 @@ bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, u
             if((ptr[i]).dsp < min || (ptr[i]).dsp > dsp_max)
                 return true;
             temp += (ptr[i]).dsp;
-        }
+        }*/
     }
 
-    if(temp >= (int) max * utilization)
+    if(temp >= (int) max * utilization) {
             return true;
-    else
+    }
+    else {
+        qDebug() << "total " << type << " " << temp << endl;
         return false;
-
+    }
 }

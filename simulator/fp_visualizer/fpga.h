@@ -11,7 +11,7 @@
 #define ZYNQ_BRAM_TOT 60
 #define ZYNQ_DSP_TOT 80
 
-#define ZYNQ_CLB_MIN 200
+#define ZYNQ_CLB_MIN 10
 #define ZYNQ_BRAM_MIN 0
 #define ZYNQ_DSP_MIN 0
 
@@ -35,7 +35,7 @@
 #define VIRTEX_BRAM_TOT 545
 #define VIRTEX_DSP_TOT 900
 
-#define VIRTEX_CLB_MIN 400
+#define VIRTEX_CLB_MIN 10
 #define VIRTEX_BRAM_MIN 0
 #define VIRTEX_DSP_MIN 0
 
