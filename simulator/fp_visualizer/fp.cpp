@@ -178,9 +178,9 @@ void fp::paint_virtex()
     for(i = 0; i < virt->num_forbidden_slots; i++) {
         rec_pen.setColor(Qt::black);
         fp_rect = scene.addRect((virt->forbidden_pos[i].x * clb_width) / 3,
-                                (virt->forbidden_pos[i].y * clb_height)/ 3 ,
+                                (((60 - virt->forbidden_pos[i].y - virt->forbidden_pos[i].h + 10) * clb_height) * 5)/ 3 ,
                                 (virt->forbidden_pos[i].w * clb_width) / 3,
-                                (virt->forbidden_pos[i].h * clb_height)/ 3, rec_pen, br);
+                                (virt->forbidden_pos[i].h * clb_height * 5)/ 3, rec_pen, br);
     }
 }
 
@@ -245,7 +245,7 @@ void fp::paint_zynq()
             rec_pen.setWidth(1);
 
             if(is_bram) {
-                if(pos_ptr_x + j + 1 == zynq->clk_reg[i].bram_pos[bram_pos_ptr]) {
+                if(pos_ptr_x + j == zynq->clk_reg[i].bram_pos[bram_pos_ptr]) {
                     rec_pen.setColor(Qt::red);
                     bound = zynq->clk_reg[i].bram_per_column;
                     rec_height = bram_height;
@@ -258,7 +258,7 @@ void fp::paint_zynq()
             }
 
             if(is_dsp) {
-                if(pos_ptr_x + j + 1 == zynq->clk_reg[i].dsp_pos[dsp_pos_ptr]) {
+                if(pos_ptr_x + j == zynq->clk_reg[i].dsp_pos[dsp_pos_ptr]) {
                     rec_pen.setColor(Qt::green);
                     bound = zynq->clk_reg[i].dsp_per_column;
                     rec_height = dsp_height;
@@ -469,12 +469,17 @@ void fp::set_browse()
 void fp::set_util()
 {
     unsigned long i;
-    int clb_tot, bram_tot, dsp_tot;
-    int clb_min, bram_min, dsp_min;
-    int clb_mod;
+    unsigned long clb_tot, bram_tot, dsp_tot;
+    unsigned long clb_min, bram_min, dsp_min;
+    unsigned long clb_max, bram_max, dsp_max;
+    unsigned long clb_mod, bram_mod, dsp_mod;
     QString str;
-    int temp_util = 0;
-    float util_temp = 0.0;
+   // int temp_util = 0;
+   // float util_temp = 0.0;
+
+    vector <unsigned long> clb_vec (num_slots, 0);
+    vector <unsigned long> bram_vec (num_slots, 0);
+    vector <unsigned long> dsp_vec (num_slots, 0);
 
     //slot s1, s2, s3;
     //slot sl_array[num_slots];
@@ -483,16 +488,21 @@ void fp::set_util()
      str = ui->utilLineEdit->text();
      utilization = str.toFloat();
 
-     qDebug() << "util is" << utilization << endl;
+     //qDebug() << endl << "util is" << utilization << endl;
 
      if(type == ZYNQ) {
          clb_tot  = ZYNQ_CLB_TOT;
          bram_tot = ZYNQ_BRAM_TOT;
          dsp_tot  = ZYNQ_DSP_TOT;
          clb_min  = ZYNQ_CLB_MIN;
+         clb_max  = 400;
          bram_min = ZYNQ_BRAM_MIN;
+         bram_max = 12;
          dsp_min  = ZYNQ_DSP_MIN;
+         dsp_max  = 20;
          clb_mod = clb_tot * utilization;
+         bram_mod = bram_tot * 0.1;
+         dsp_mod = dsp_tot * 0.1;
      }
 
      else if(type == VIRTEX) {
@@ -500,11 +510,16 @@ void fp::set_util()
          bram_tot = VIRTEX_BRAM_TOT;
          dsp_tot = VIRTEX_DSP_TOT;
          clb_min = VIRTEX_CLB_MIN;
+         clb_max = 10000;
          bram_min = VIRTEX_BRAM_MIN;
+         bram_max = 50;
          dsp_min = VIRTEX_DSP_MIN;
+         dsp_max = 100;
          clb_mod = clb_tot * utilization;
+         bram_mod = bram_tot * 0.1;
+         dsp_mod = dsp_tot * 0.1;
      }
-
+/*
      int mod_clb = (clb_tot * 2 * utilization) / num_slots;
      int mod_bram = (bram_tot * 1 * utilization) / num_slots;
      int mod_dsp = (dsp_tot * 1 * utilization) / num_slots;
@@ -524,22 +539,67 @@ void fp::set_util()
          for(i = 0; i < num_slots; i++)
              sl_array[i].dsp = rand()%mod_dsp; //dsp_tot;
      }while(is_compatible(sl_array, num_slots, dsp_tot, dsp_min, DSP));
-*/
+
      for(i = 0; i < num_slots; i++) {
          qDebug() << "in slot " << i << " " << sl_array[i].clb <<" " << sl_array[i].bram <<" "<< sl_array[i].dsp << endl;
          temp_util += sl_array[i].clb;
      }
+
     util_temp = (float) temp_util / clb_tot;
     qDebug() << "utilization " << util_temp << endl;
+    */
+
+    qDebug() << "clbs " <<clb_mod << " bram " << bram_mod << " dsp " << dsp_mod << endl;
+    clb_vec = fp::get_units_per_task(num_slots, clb_mod, clb_min, clb_max); //  fp::get_units_per_task(num_slots, clb_mod, clb_min, clb_max);
+    bram_vec = fp::get_units_per_task(num_slots, bram_mod , bram_min, bram_max);
+    dsp_vec = fp::get_units_per_task(num_slots, dsp_mod, dsp_min, dsp_max);
+
+    for(i = 0; i < num_slots; i++)
+          cout<< "clb" << i << " " <<clb_vec[i] << " bram" << i << " " << bram_vec[i] << " dsp" << i << " " <<dsp_vec[i] <<endl;
+
     if(num_slots != 0) {
         for(i = 0; i < num_slots; i++) {
-            clb_vector[i] = sl_array[i].clb;
-            bram_vector[i] = sl_array[i].bram;
-            dsp_vector[i] = sl_array[i].dsp;
+            clb_vector[i] = clb_vec[i]; //sl_array[i].clb;
+            bram_vector[i] = bram_vec[i]; //sl_array[i].bram;
+            dsp_vector[i] =  dsp_vec[i]; //sl_array[i].dsp;
         }
     }
 }
 
+vector<unsigned long> fp::get_units_per_task(unsigned long n, unsigned long n_units, unsigned long n_min, unsigned long n_max)
+{
+    vector<unsigned long> ret;
+    double rand_dbl;
+
+    uint n_units_sum = n_units, n_units_next=0;
+
+    for(uint i=0; i < n-1; i++)
+    {
+        srand(time(0));
+        rand_dbl = pow(MY_RAND(),(1.0 / (double)(n - i - 1)));
+        n_units_next = floor((double)n_units_sum * rand_dbl);// MY_RAND(),(1.0 / (double)(n - i - 1))));
+        //cout << n_units_next << " " << rand_dbl << endl;
+        // --------- LIMIT Task Utilization --------------
+        if(n_units_next>(n_units_sum-n_min))
+            n_units_next = n_units_sum-n_min;
+
+        if(n_units_next<((n-i-1)*n_min))
+            n_units_next = (n-i-1)*n_min;
+
+        if((n_units_sum - n_units_next)>n_max)
+            n_units_next = n_units_sum-n_max;
+        // ------------------------------------------------
+
+        ret.push_back(n_units_sum-n_units_next);
+        n_units_sum =  n_units_next;
+    }
+
+    ret.push_back(n_units_sum);
+
+    return ret;
+}
+
+/*
 bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, unsigned long min, int type)
 {
     unsigned long i, temp = 0;
@@ -560,7 +620,7 @@ bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, u
                 return true;
             temp += (ptr[i]).clb;
         }
-/*
+
         else if (type == BRAM){
             if((ptr[i]).bram < min || (ptr[i]).bram > bram_max)
                 return true;
@@ -570,7 +630,7 @@ bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, u
             if((ptr[i]).dsp < min || (ptr[i]).dsp > dsp_max)
                 return true;
             temp += (ptr[i]).dsp;
-        }*/
+        }
     }
 
     if(temp >= (int) max * utilization) {
@@ -581,3 +641,4 @@ bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, u
         return false;
     }
 }
+*/

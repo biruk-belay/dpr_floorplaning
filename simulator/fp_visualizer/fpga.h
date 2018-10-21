@@ -39,7 +39,7 @@
 #define VIRTEX_BRAM_MIN 0
 #define VIRTEX_DSP_MIN 0
 
-#define VIRTEX_FORBIDDEN 10
+#define VIRTEX_FORBIDDEN 7
 #define VIRTEX_NUM_ROWS 10
 #define VIRTEX_WIDTH 103
 
@@ -94,8 +94,8 @@ typedef struct {
     int *bram_pos;
     int *dsp_pos;
     pos forbidden_pos;
+    pos bram_pos_new;
 }fpga_clk_reg;
-
 
 #define init_clk_reg(id, pos, clb, bram, dsp, num_bram, num_dsp, num_forbidden, \
                                pos_bram, pos_dsp, forbidden) \
@@ -116,32 +116,33 @@ class fpga
 public:
     int num_clk_reg = ZYNQ_CLK_REG;
     fpga_clk_reg clk_reg[ZYNQ_CLK_REG];
-    pos clk_reg_pos [ZYNQ_CLK_REG] = {{0,  50, 14, 50},
-                                      {0,   0, 14, 50},
-                                      {15, 50, 14, 50},
-                                      {15,  0, 14, 50}};
+    pos clk_reg_pos [ZYNQ_CLK_REG] = {{0,  0,  14, 50},
+                                      {0,  50, 14, 50},
+                                      {15, 0,  14, 50},
+                                      {15, 50, 14, 50}};
 
     int clb_per_col  = 50;
     int bram_per_col = 10;
     int dsp_per_col  = 20;
+
     unsigned long num_rows = ZYNQ_NUM_ROWS;
     unsigned long width = ZYNQ_WIDTH;
 
     int bram_in_reg[ZYNQ_CLK_REG] = {1, 1, 2, 2};
-    int bram_pos[ZYNQ_CLK_REG][10] = {{4, 0, 0},  {4, 0, 0},
-                                     {18, 25, 0}, {18, 25, 0}};
+    int bram_pos[ZYNQ_CLK_REG][10] = {{3, 0, 0},  {3, 0, 0},
+                                     {17, 24, 0}, {17, 24, 0}};
 
     int dsp_in_reg[ZYNQ_CLK_REG] = {1, 1, 1, 1};
-    int dsp_pos[ZYNQ_CLK_REG][3] = {{7, 0, 0},
-                                    {7, 0, 0},
-                                    {22, 0, 0},
-                                    {22, 0, 0}};
+    int dsp_pos[ZYNQ_CLK_REG][3] = {{6, 0, 0},
+                                    {6, 0, 0},
+                                    {21, 0, 0},
+                                    {21, 0, 0}};
 
     unsigned long num_forbidden_slots = ZYNQ_FORBIDDEN;
-    pos fbdn_pos[ZYNQ_FORBIDDEN] =        {{10, 0,  1, 50},
-                                          {10, 50, 1, 50},
-                                          {14, 0,  1, 50},
-                                          {14, 50,  1,  50}};
+    pos fbdn_pos[ZYNQ_FORBIDDEN] =    {{9, 0,  1, 50},
+                                      {9,  50, 1, 50},
+                                      {14, 0,  1, 50},
+                                      {14, 50, 1, 50}};
 
     int forbidden_regs[ZYNQ_CLK_REG] = {1, 1, 0, 0};
 
@@ -179,7 +180,7 @@ public:
     int bram_pos[VIRTEX_CLK_REG][5] = {{4, 15, 20, 35}, {4, 15, 20, 35}, {4, 15, 20, 35},
                                         {4, 15, 20, 35}, {4, 15, 20, 35}, {20, 35}, {20, 35}, {56, 73, 86, 92},
                                         {56, 73, 86, 92}, {56, 73, 86, 92}, {56, 73, 86, 92},
-                                        {56, 73, 86, 92, 200}, {56, 73, 86, 92, 200}, {56, 73, 86, 92, 200}};
+                                        {56, 73, 86, 92, 99}, {56, 73, 86, 92, 99}, {56, 73, 86, 92, 99}};
 
     int dsp_in_reg[VIRTEX_CLK_REG] = {4, 4, 4, 4, 4, 2, 2, 3, 3, 3, 3, 3, 3, 3};
     int dsp_pos[VIRTEX_CLK_REG][5] = {{7, 12, 23, 32}, {7, 12, 23, 32}, {7, 12, 23, 32}, {7, 12, 23, 32},
@@ -191,16 +192,17 @@ public:
                                          {15, 0, 1, ZYNQ_NUM_ROWS}};
 
     int forbidden_regs[VIRTEX_CLK_REG] = {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 0, 1, 1};
-    pos forbidden_pos[VIRTEX_FORBIDDEN] = {{0,   0,  18, 50},
-                                           {0,   50, 18, 50},
-                                           {55,  0,  1,  350},
-                                           {76,  0,   6,  50},
-                                           {76,  50,  6,  50},
-                                           {91,  150, 4,  50},
-                                           {104, 150, 5,  50},
-                                           {104, 200, 5,  50},
-                                           {104, 250, 5,  50},
-                                           {104, 300, 5,  50}};
+    pos forbidden_pos[VIRTEX_FORBIDDEN] = {{0,   60,  18, 10},
+                                           {0,   50,  18, 10},
+                                           {55,  0,   1,  70},
+                                           {104, 0,   5,  40},
+                                           {74,  50,  8,  10},
+                                           {74,  60,  8,  10},
+                                           {89,  30,  4,  10}/*,
+                                           {104, 0,   5,  40},
+                                           {104, 200, 5,  10},
+                                           {104, 250, 5,  10},
+                                           {104, 300, 5,  10}*/};
 
     void initialize_clk_reg();
     virtex();

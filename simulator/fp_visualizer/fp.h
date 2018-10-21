@@ -29,6 +29,8 @@ typedef struct{
     unsigned long dsp;
 }slot;
 
+#define MY_RAND() ((double)((double)rand()/(double)RAND_MAX))
+
 class fp : public QDialog
 {
     Q_OBJECT
@@ -72,6 +74,10 @@ public:
 
     position_vec forbidden_region_zynq = position_vec(MAX_SLOTS);
     position_vec forbidden_region_virtex = position_vec(MAX_SLOTS);
+    std::vector<unsigned long> get_units_per_task(unsigned long n,
+                                                  unsigned long n_units,
+                                                  unsigned long n_min,
+                                                  unsigned long n_max);
 
     param_from_solver from_solver = {&eng_x, &eng_y,
                                    &eng_w, &eng_h};
