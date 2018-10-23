@@ -450,8 +450,9 @@ void fp::set_browse()
     col = csv_data.columns();
 
     qDebug() << " row " <<row << endl;
+    cout <<"in browse" << endl;
 
-    if(row > num_slots) {
+    if(row >= num_slots) {
         for(i = 0, ptr = 0, k = 0; i < num_slots; i++, ptr++) {
             str = csv_data.get_value(i, k++);
             clb_vector[ptr] = std::stoi(str);
@@ -462,6 +463,7 @@ void fp::set_browse()
             str = csv_data.get_value(i, k++);
             dsp_vector[ptr] = std::stoi(str);
             k = 0;
+            //cout << "clb " << clb_vector[ptr] << " bram " << bram_vector[ptr] << "dsp " << dsp_vector[ptr] << endl;
         }
     }
 }
@@ -550,13 +552,14 @@ void fp::set_util()
     */
 
     qDebug() << "clbs " <<clb_mod << " bram " << bram_mod << " dsp " << dsp_mod << endl;
-    clb_vec = fp::get_units_per_task(num_slots, clb_mod, clb_min, clb_max); //  fp::get_units_per_task(num_slots, clb_mod, clb_min, clb_max);
+    clb_vec = fp::get_units_per_task(num_slots, clb_mod, clb_min, clb_max);
     bram_vec = fp::get_units_per_task(num_slots, bram_mod , bram_min, bram_max);
     dsp_vec = fp::get_units_per_task(num_slots, dsp_mod, dsp_min, dsp_max);
 
-    for(i = 0; i < num_slots; i++)
-          cout<< "clb" << i << " " <<clb_vec[i] << " bram" << i << " " << bram_vec[i] << " dsp" << i << " " <<dsp_vec[i] <<endl;
-
+    for(i = 0; i < num_slots; i++) {
+          //cout<< "clb" << i << " " <<clb_vec[i] << " bram" << i << " " << bram_vec[i] << " dsp" << i << " " <<dsp_vec[i] <<endl;
+          cout<<clb_vec[i] << "," << bram_vec[i] << ", " <<dsp_vec[i] <<endl;
+    }
     if(num_slots != 0) {
         for(i = 0; i < num_slots; i++) {
             clb_vector[i] = clb_vec[i]; //sl_array[i].clb;
@@ -577,21 +580,21 @@ vector<unsigned long> fp::get_units_per_task(unsigned long n, unsigned long n_un
     {
         srand(time(0));
         rand_dbl = pow(MY_RAND(),(1.0 / (double)(n - i - 1)));
-        n_units_next = floor((double)n_units_sum * rand_dbl);// MY_RAND(),(1.0 / (double)(n - i - 1))));
+        n_units_next = floor((double)n_units_sum * rand_dbl);
         //cout << n_units_next << " " << rand_dbl << endl;
         // --------- LIMIT Task Utilization --------------
-        if(n_units_next>(n_units_sum-n_min))
-            n_units_next = n_units_sum-n_min;
+        if(n_units_next > (n_units_sum - n_min))
+            n_units_next = n_units_sum - n_min;
 
-        if(n_units_next<((n-i-1)*n_min))
-            n_units_next = (n-i-1)*n_min;
+        if(n_units_next < ((n - i - 1) * n_min))
+            n_units_next = (n - i - 1) * n_min;
 
-        if((n_units_sum - n_units_next)>n_max)
-            n_units_next = n_units_sum-n_max;
+        if((n_units_sum - n_units_next) > n_max)
+            n_units_next = n_units_sum - n_max;
         // ------------------------------------------------
 
-        ret.push_back(n_units_sum-n_units_next);
-        n_units_sum =  n_units_next;
+        ret.push_back(n_units_sum - n_units_next);
+        n_units_sum = n_units_next;
     }
 
     ret.push_back(n_units_sum);

@@ -54,8 +54,8 @@ SOURCES       = ../fp_visualizer/main.cpp \
 		../fp_visualizer/fp.cpp \
 		../fp_visualizer/fpga.cpp \
 		../fp_visualizer/csv_data_manipulator.cpp \
-		../../../fp/dpr_floorplaning/engine/model_virtex.cpp \
-		../../../fp/dpr_floorplaning/engine/model_zynq.cpp moc_fp.cpp
+		../../engine/src/model_virtex.cpp \
+		../../engine/src/model_zynq.cpp moc_fp.cpp
 OBJECTS       = main.o \
 		fp.o \
 		fpga.o \
@@ -260,8 +260,8 @@ DIST          = /opt/Qt/5.11.0/gcc_64/mkspecs/features/spec_pre.prf \
 		../fp_visualizer/fp.cpp \
 		../fp_visualizer/fpga.cpp \
 		../fp_visualizer/csv_data_manipulator.cpp \
-		../../../fp/dpr_floorplaning/engine/model_virtex.cpp \
-		../../../fp/dpr_floorplaning/engine/model_zynq.cpp
+		../../engine/src/model_virtex.cpp \
+		../../engine/src/model_zynq.cpp
 QMAKE_TARGET  = fp_visualizer
 DESTDIR       = 
 TARGET        = fp_visualizer
@@ -676,7 +676,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /opt/Qt/5.11.0/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../fp_visualizer/fp.h ../fp_visualizer/fpga.h ../../engine/include/gurobi_c++.h ../fp_visualizer/csv_data_manipulator.hpp ../../engine/include/zynq_model.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../fp_visualizer/main.cpp ../fp_visualizer/fp.cpp ../fp_visualizer/fpga.cpp ../fp_visualizer/csv_data_manipulator.cpp ../../../fp/dpr_floorplaning/engine/model_virtex.cpp ../../../fp/dpr_floorplaning/engine/model_zynq.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../fp_visualizer/main.cpp ../fp_visualizer/fp.cpp ../fp_visualizer/fpga.cpp ../fp_visualizer/csv_data_manipulator.cpp ../../engine/src/model_virtex.cpp ../../engine/src/model_zynq.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../fp_visualizer/fp.ui $(DISTDIR)/
 
 
@@ -1763,34 +1763,6 @@ fp.o: ../fp_visualizer/fp.cpp ../fp_visualizer/fp.h \
 		../fp_visualizer/fpga.h \
 		../fp_visualizer/csv_data_manipulator.hpp \
 		ui_fp.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtCore/QVariant \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QApplication \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qapplication.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qdesktopwidget.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QComboBox \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qcombobox.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QFormLayout \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qformlayout.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QLayout \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qlayout.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qlayoutitem.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qboxlayout.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qgridlayout.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QGraphicsView \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qgraphicsview.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qscrollarea.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QHBoxLayout \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QHeaderView \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qheaderview.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QLabel \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qlabel.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QLineEdit \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qlineedit.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QPushButton \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qpushbutton.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qabstractbutton.h \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QVBoxLayout \
-		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QWidget \
 		/opt/Qt/5.11.0/gcc_64/include/QtCore/QDebug \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/QFileDialog \
 		/opt/Qt/5.11.0/gcc_64/include/QtWidgets/qfiledialog.h
@@ -1802,17 +1774,17 @@ fpga.o: ../fp_visualizer/fpga.cpp ../fp_visualizer/fpga.h
 csv_data_manipulator.o: ../fp_visualizer/csv_data_manipulator.cpp ../fp_visualizer/csv_data_manipulator.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o csv_data_manipulator.o ../fp_visualizer/csv_data_manipulator.cpp
 
-model_virtex.o: ../../../fp/dpr_floorplaning/engine/model_virtex.cpp /opt/gurobi702/linux64/include/gurobi_c++.h \
+model_virtex.o: ../../engine/src/model_virtex.cpp /opt/gurobi702/linux64/include/gurobi_c++.h \
 		/opt/gurobi702/linux64/include/gurobi_c.h \
 		../../engine/include/zynq_model.h \
 		../fp_visualizer/fpga.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o model_virtex.o ../../../fp/dpr_floorplaning/engine/model_virtex.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o model_virtex.o ../../engine/src/model_virtex.cpp
 
-model_zynq.o: ../../../fp/dpr_floorplaning/engine/model_zynq.cpp /opt/gurobi702/linux64/include/gurobi_c++.h \
+model_zynq.o: ../../engine/src/model_zynq.cpp /opt/gurobi702/linux64/include/gurobi_c++.h \
 		/opt/gurobi702/linux64/include/gurobi_c.h \
 		../../engine/include/zynq_model.h \
 		../fp_visualizer/fpga.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o model_zynq.o ../../../fp/dpr_floorplaning/engine/model_zynq.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o model_zynq.o ../../engine/src/model_zynq.cpp
 
 moc_fp.o: moc_fp.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_fp.o moc_fp.cpp

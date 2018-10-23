@@ -21,6 +21,8 @@ static unsigned long num_forbidden_slots;
 static unsigned long BIG_M = 10000000;
 static unsigned long num_clk_regs = 7;
 
+unsigned long wasted_clb, wasted_bram, wasted_dsp;
+
 static int status;
 static unsigned long delta_size;
 
@@ -494,6 +496,23 @@ int solve_milp_virtex(param_from_solver *to_sim)
              }
          }
 
+         /**********************************************************************
+           name: wasted
+           type: integer
+           func: centroid[i][k] represents the wasted resources in each slot
+                 k = 0 => clb
+                 k = 1 => bram
+                 k = 2 => dsp
+          ***********************************************************************/
+
+          GRBVar2DArray wasted (num_slots);
+          for(i = 0; i < num_slots; i++) {
+              GRBVarArray each_slot(3);
+              wasted[i] = each_slot;
+
+              for(k = 0; k < 3; k++)
+                  wasted[i][k] = model.addVar(0.0,  GRB_INFINITY, 0.0, GRB_INTEGER);
+          }
      model.update();
 
         /********************************************************************
@@ -981,15 +1000,15 @@ int solve_milp_virtex(param_from_solver *to_sim)
             }
             }
             model.addConstr(5 * exp_res >= clb_req[i],"68");
-            //model.addConstr((5 * exp_res) - clb_req[i] <= 100,"168");
+            model.addConstr(wasted[i][0] == (5 * exp_res) - clb_req[i],"168"); //wasted clbs
 //#ifdef bram
             model.addConstr(exp_bram >= bram_req[i],"69");
-//            model.addConstr(exp_bram - bram_req[i] <= (1 - constr 9,"169");
+            model.addConstr(wasted[i][1] == exp_bram - bram_req[i] ,"169");
 //#endif
 
 //#ifdef dspp
             model.addConstr(2 * exp_dsp >= dsp_req[i],"70");
-            //model.addConstr((2 * exp_dsp) - dsp_req[i] <= (BIG_M * kappa[1][i] + 19 *(1 - kappa[1][i])), "170");
+            model.addConstr(wasted[i][2] == (2 * exp_dsp) - dsp_req[i], "170");
 //#endif
         }
 
@@ -1068,18 +1087,18 @@ int solve_milp_virtex(param_from_solver *to_sim)
         }
 //#endif
 
+//#ifdef objective
         //Objective function parameters definition
         /*************************************************************************
         Constriant 5.0: The centroids of each slot and the distance between each
                         of them (the wirelength) is defined in these constraints.
                         The wirelength is used in the objective function
         *************************************************************************/
-        GRBLinExpr obj_x, obj_y;
+        GRBLinExpr obj_x, obj_y, obj_wasted_clb, obj_wasted_bram, obj_wasted_dsp;
 
         for(i = 0; i < num_slots; i++) {
             model.addConstr(centroid[i][0] == x[i][0] + w[i] / 2, "84");
-            model.addConstr(centroid[i][1] == y[i] + h[i] / 2, "86");
-            cout<< " in centroid i & j" <<i <<endl;
+            model.addConstr(centroid[i][1] == y[i] * 10 + h[i] / 2, "86");
         }
 
         for(i =0; i < num_slots; i++){
@@ -1088,9 +1107,9 @@ int solve_milp_virtex(param_from_solver *to_sim)
                     continue;
                 }
                 model.addConstr(dist[i][j][0] >= (centroid[i][0] - centroid[j][0]), "87");
-                //model.addConstr(dist[i][j][0] >= (centroid[j][0] - centroid[i][0]), "88");
+                model.addConstr(dist[i][j][0] >= (centroid[j][0] - centroid[i][0]), "88");
                 model.addConstr(dist[i][j][1] >= (centroid[i][1] - centroid[j][1]), "89");
-                //model.addConstr(dist[i][j][1] >= (centroid[j][1] - centroid[i][1]), "90");
+                model.addConstr(dist[i][j][1] >= (centroid[j][1] - centroid[i][1]), "90");
             }
         }
 
@@ -1101,17 +1120,29 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 obj_x += dist[i][j][0];
                 obj_y += dist[i][j][1];
             }
+
+            obj_wasted_clb += wasted[i][0];
+            obj_wasted_bram += wasted[i][1];
+            obj_wasted_dsp += wasted[i][2];
         }
 
         model.setObjective((obj_x + obj_y), GRB_MINIMIZE);
+        model.setObjective(obj_wasted_clb,  GRB_MINIMIZE);
+        //model.setObjective(obj_wasted_bram, GRB_MINIMIZE);
+       // model.setObjective(obj_wasted_dsp,  GRB_MINIMIZE);
+
+//#endif
 
         //Optimize
         /****************************************************************************
         Optimize
         *****************************************************************************/
         model.set(GRB_IntParam_Threads, 8);
-        model.set(GRB_DoubleParam_TimeLimit, 60);
+        model.set(GRB_DoubleParam_TimeLimit, 1800);
         model.optimize();
+        wasted_clb = 0;
+        wasted_bram = 0;
+        wasted_dsp = 0;
 
         status = model.get(GRB_IntAttr_Status);
 
@@ -1144,12 +1175,11 @@ int solve_milp_virtex(param_from_solver *to_sim)
                     dsp[i][1].get(GRB_DoubleAttr_X) << "\t" << (dsp[i][1].get(GRB_DoubleAttr_X) -
                             dsp[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 2 << "\t" << dsp_req[i] <<endl;
 
-
                     cout <<endl;
 
                     (*to_sim->x)[i] = (int) x[i][0].get(GRB_DoubleAttr_X);
                     (*to_sim->y)[i] = (int) y[i].get(GRB_DoubleAttr_X) * num_rows;
-                    (*to_sim->w)[i] =  (int) w[i].get(GRB_DoubleAttr_X);
+                    (*to_sim->w)[i] = (int) w[i].get(GRB_DoubleAttr_X);
                     (*to_sim->h)[i] = (int) h[i].get(GRB_DoubleAttr_X);
 
                     for(k=0; k < 2; k++) {
@@ -1170,18 +1200,22 @@ int solve_milp_virtex(param_from_solver *to_sim)
                             cout<<endl;
                     }
 
-                    /*
-                    for(l =0; l < num_clk_regs; l++)
-                    for(k =0; k < num_rows; k++)
-                        cout << "b"<< k << " " <<beta[i][l][k].get(GRB_DoubleAttr_X) << " " ;
-*/
-
-                    //std::cout << "kappa" << kappa[1][i].get(GRB_DoubleAttr_X) << res_constr[0][i].get(GRB_DoubleAttr_X) << res_constr[1][i].get(GRB_DoubleAttr_X) << endl;
-
                     cout <<  endl;
-
             }
-         }
+
+            for (i = 0; i < num_slots; i++) {
+                wasted_clb  +=  wasted[i][0].get(GRB_DoubleAttr_X);
+                wasted_bram +=  wasted[i][1].get(GRB_DoubleAttr_X);
+                wasted_dsp  +=  wasted[i][2].get(GRB_DoubleAttr_X);
+
+                cout << "wasted clb " << wasted[i][0].get(GRB_DoubleAttr_X) << " wasted bram " << wasted[i][1].get(GRB_DoubleAttr_X) <<
+                       " wasted dsp " << wasted[i][2].get(GRB_DoubleAttr_X) <<endl;
+
+                cout<< "centroid " << i << centroid[i][0].get(GRB_DoubleAttr_X) << " " <<centroid[i][1].get(GRB_DoubleAttr_X) <<endl;
+            }
+
+                cout << "total wasted clb " <<wasted_clb << " total wasted bram " <<wasted_bram << " total wastd dsp " << wasted_dsp <<endl;
+        }
 /*
     else {
 

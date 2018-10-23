@@ -27,8 +27,8 @@ SOURCES += \
         fp.cpp \
     fpga.cpp \
     csv_data_manipulator.cpp \
-    ../../../fp/dpr_floorplaning/engine/model_virtex.cpp \
-    ../../../fp/dpr_floorplaning/engine/model_zynq.cpp
+    ../../engine/src/model_virtex.cpp \
+    ../../engine/src/model_zynq.cpp
 
 LIBS += \
        -lgurobi_g++5.2\
