@@ -1,0 +1,11 @@
+\section{Experiemtnal Results}
+\subsection{Experimental Setup}
+How was the experiment implmented i.e, with what kind of prog. langaguge, on what optimization tool, on what platforms...
+What is the system being tested for ? What is the compositon of the synthethic task suite used for testing. What type of FPGAs are modeled ?  What are the challenges when switiching between models.  \\
+
+
+The system is tested for Exec time Vs Num of Reconfigurable regions and Exec time Vs \%of resources used by the system on both zynq and virtex\\
+
+The system is also tested for \% of wasted resources (coeficients used to set allowed percentage of resources to be wasted \%)VS Exec time on both virtex and zynq. The average wasted resources are also reported when not imposing these constraints and what effect it has on exec time and feasibility in general. my guess is that upto a certain point (upto a certain \% of utilization of resources) not imposing these constraints improves the exec time but after the utilization increases (i.e., more applications require more resources) not imposing these coeffecients leads to infeasible constrants. This has to be tested with a carefully designed test suit which will test the limist of the platform. \\
+
+Finally a case study on a real application on Zynq. 

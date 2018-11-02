@@ -1,0 +1,284 @@
+\section{Design}
+\subsection{definition of optimization variables}
+To encode the MILP formulation the following binary and real variables are defined. \\ \\
+Variables related to the size, location and number of resources in slot S$_i$. \\
+For each slot S$_i$
+\begin{itemize}
+\item N: set of reconfigurable regions
+
+\item S$_i$: slot i $\mid$ S$_i$ $\in$ N 
+
+\item W $\in$ $\mathbb{Z}$ represents the total width of the fpga fabric
+
+\item H $\in$ $\mathbb{Z}$ specifies the height of the fpga fabric
+
+\item C: the set of clock regions on the fpga
+
+\item r $\in$ $\mathbb{Z}$ denotes the number of rows inside a single clock region
+
+\item F: set of forbidden regions
+
+\item F$_k$: forbidden region k $\in$ F
+
+\item x$_i$, y$_i$ w$_i$, h$_i$ $\in$ $\mathbb{Z}$ represent the bottom left coordinates, the width and the height of S$_i$  respectively
+\end{itemize}
+
+\begin{itemize}
+\item clb$_i$, bram$_i$ and dsp$_i$  $\in$ $\mathbb{Z}$ represent the number of clb, bram and dsp between x$_i$ and x$_i$ + w$_i$ in a single row respectively.
+\end{itemize}
+
+\begin{itemize}
+\item clb$\_$req$_i$, bram$\_$req$_i$ and dsp$\_$req$_i$ $\in$ $\mathbb{Z}$ represent the required number of clb, bram and dsp in S$_i$.
+\end{itemize}
+
+\begin{itemize}
+\item $\beta_{ijk}$ $\in$ [0,1] represents row k in clock region j for slot S$_i$.
+\end{itemize}
+\hfill \break
+Variables denoting the relationship between two slots 
+
+For two slots S$_i$ and S$_k$ 
+\begin{itemize}
+\item $\gamma_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the left or on the right of S$_k$\\
+$\gamma_{ik}$ = 1 if x$_i$ $\leq$ x$_k$ [i.e. S$_i$ is on the left of S$_k$]
+
+\item $\theta_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the top or bottom of of S$_k$\\
+$\theta_{ik}$ = 1 if y$_i$ $\leq$ y$_k$ [i.e. S$_i$ is found below S$_k$]
+
+\item $\Gamma_{ik}$ $\in$ [0,1] is used to denote if bottom right x coordinate of S$_i$ is found to the right of the bottom left coordinate of S$_k$ \\
+$\Gamma$ = 1 if x$_i$ + w$_i$ $\geq$ x$_k$
+
+\item $\eta_{ik}$ $\in$ [0,1] is used to denote if bottom right x coordinate of S$_k$ is found to the right of the bottom left coordinate of S$_i$ \\
+$\eta$ = 1 if x$_k$ + w$_k$ $\geq$ x$_i$
+
+\item $\Omega_{ik}$ $\in$ [0,1] is used to denote if the top y coordinate of S$_i$ is found above the lower y coordinate of S$_k$ \\
+$\Omega$ = 1 if y$_i$ + h$_i$ $\geq$ y$_k$
+
+\item $\Psi_{ik}$ $\in$ [0,1] is used to denote if top y coordinate of S$_k$ is found above the lower y coordinate of S$_i$ \\
+$\Psi$ = 1 if y$_k$ + h$_k$ $\geq$ y$_i$
+
+
+\item $\Delta_{ik}$ $\in$ [0,1] is a binary variable which indicates interfernce between slots S$_i$ and S$_k$.\\
+$\Delta_{ik}$ = 0 if there is no interference between the slots [i.e. not a single tile is shared between slots]
+
+
+%\item D$_{w}$, B$_w$ and C$_w$ represent wasted DSPs, BRAMs and CLBs in S$_i$ respectively
+%\item $\alpha_i$ is a real variable that is used to express the bound on the amount of wasted resources in a slot S$_i$
+%\item $\rho$ and $\nu$ are vectors which contain the x and y coordinates of all the forbidden columns and rows on the FPGA fabric respectively 
+%\item $\eta_{ik}$ is a real variable that expresses the bound on the wirelength between S$_i$ and S$_k$
+\end{itemize}
+
+\hfill \break
+
+Variables denoting the relationship between S$_i$ and forbidden region F$_k$.  
+\begin{itemize}
+\item $\mu_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the left or on the right of F$_k$\\
+$\mu_{ik}$ = 1 if x$_i$ $\leq$ fx$_k$ [i.e. S$_i$ is on the left of F$_k$]
+
+\item $\nu_{ik}$ $\in$ [0,1] is a binary variable used to identify whether S$_i$ is found on the top or bottom of of F$_k$\\
+$\nu_{ik}$ = 1 if y$_i$ $\leq$ fy$_k$ [i.e. S$_i$ is found below F$_k$]
+
+\item fbdn$_1$ $\in$ [0,1] is used to denote if bottom right x coordinate of S$_i$ is found to the right of the bottom left coordinate of F$_k$ \\
+fbdn$_1$ = 1 if x$_i$ + w$_i$ $\geq$ fx$_k$
+
+\item fbdn$_2$ $\in$ [0,1] is used to denote if bottom right x coordinate of F$_k$ is found to the right of the bottom left coordinate of s$_i$ \\
+fbdn$_2$ = 1 if fx$_k$ + fw$_k$ $\geq$ x$_i$
+
+\item fbdn$_3$ $\in$ [0,1] is used to denote if the top y coordinate of S$_i$ is found above the lower y coordinate of F$_k$ \\
+fbdn$_3$ = 1 if y$_i$ + h$_i$ $\geq$ fy$_k$
+
+\item fbdn$_4$ $\in$ [0,1] is used to denote if top y coordinate of F$_k$ is found above the lower y coordinate of S$_i$ \\
+fbdn$\_4$ = 1 if fy$_k$ + fh$_k$ $\geq$ y$_i$
+\end{itemize}
+
+\hfill \break
+
+\subsection{Constraint definition}
+Slots for partial reconfiguration should fulfill the following constraints
+\begin{itemize}
+\item there must be enough resources within the slots
+\item A frame can not be shared between two reconfigurable partitions (no interference)
+\item static resources on the FPGA must not be included in the slots 
+\item Left and right edges of slots must be placed in proper positions
+\item the amount of wasted resources should be minimized (Wasting DSPs is more expensive than BRAMs which in turn is more expensive than CLBs)
+\item Other optimizations such as lower wire length between slots or lower length to I/O etc... can be added as constraints
+\end{itemize}
+
+\hfill \break
+
+\subsubsection{\textbf {Semantics constraints}}
+The following constraints ensure the soundness of some of the variables.\\
+\begin{constraint} $\forall$ S$_1$ $\in$ N, $\forall$ i = 1...,N\textsuperscript{max} , $\forall$ x$_i$ = 0..., W, $\forall$ y$_i$ = 0..., H $\forall$ w$_i$, $\forall$ h$_i$    
+\begin{equation}
+\begin{split}
+x_i + w_i \leq W \\
+y_i + h_i \leq H \\
+\end{split}
+\end{equation} 
+\end{constraint}
+\begin{defn} the right most x coordinate and the top y coordinates of S$_i$ must not exceed the boundaries of the fabric \\
+\end{defn}
+
+\begin{constraint} $\forall$ i = 1...,N\textsuperscript{max}, $\forall$ j = 1...,clk$\_$reg\textsuperscript{max}, $\forall$ k = 1...,r $\forall$ h$_i$
+\begin{equation}
+\begin{split}
+ h_i = \sum_{j=1}^{clk\_reg} \sum_{k=1}^{r} \beta_{ijk}
+\end{split}
+\end{equation}
+\end{constraint}
+
+\begin{defn}
+The height of S$_i$ must be the sum of binary rows in each clock region which are set to 1
+\end{defn}
+
+\begin{constraint} $\forall$ i = 1...,N\textsuperscript{max}, $\forall$ j = 1...,clk$\_$reg\textsuperscript{max}, $\forall$ k = 1...,r $\forall$ h$_i$
+\begin{equation}
+\begin{split}
+y_i \leq \sum_{j=1}^{clk\_reg} \sum_{k=1}^{r} H - \beta_{ijk} \cdot (H - (k + (r - 1) \cdot j))
+\end{split}
+\end{equation}
+\end{constraint}
+\begin{defn}
+y$_i$ must be constrained not to be greater than the lowest chosen row 
+\end{defn}
+
+
+\begin{constraint} $\forall$ i = 1...,N\textsuperscript{max}, $\forall$ j = 1...,clk$\_$reg\textsuperscript{max}, $\forall$ k = 1...,r
+\begin{equation}
+\begin{split}
+\beta_{ij(k+1)} \geq \beta_{ijk} + \beta_{ij(k+2)} - 1 
+\end{split}
+\end{equation}
+\end{constraint}
+
+\begin{defn}
+rows in the same clock region in S$_i$ must be contigious i.e., if $\beta_{ij0}$ = 1 \& $\beta_{ij2}$ = 1 then$\beta_{ij1}$ must also be equal to 1.
+\end{defn}
+
+
+\subsubsection{\textbf{Resource constraints}} 
+These set of constraints ensure that each slot satisfies the resource requirements of the application. The total number of clbs in a slot S$_i$ is expressed as 
+
+\begin{equation}
+CLB(x_i,y_i,w_i,h_i) = \sum_{j=1}^{clk\_reg} \sum_{k=1}^{r} \beta_{ijk} \cdot clb_i 
+\label{tot_clb}
+\end{equation}
+
+In the same way the amount of bram and dsp can also be expressed as 
+
+\begin{equation}
+BRAM(x_i,y_i,w_i,h_i) = \sum_{j=1}^{clk\_reg} \sum_{k=1}^{r} \beta_{ijk} \cdot bram_i 
+\label{tot_bram}
+\end{equation}
+
+
+\begin{equation}
+DSP(x_i,y_i,w_i,h_i) = \sum_{j=1}^{clk\_reg} \sum_{k=1}^{r} \beta_{ijk} \cdot dsp_i 
+\label{tot_dsp}
+\end{equation}
+
+The resource constraint can simply be stated as the required number of clbs, brams and dsps must be greater than or equal to CLB(x$_i$,y$_i$,w$_i$,h$_i$), BRAM(x$_i$,y$_i$,w$_i$,h$_i$) and DSP(x$_i$,y$_i$,w$_i$,h$_i$) respectively. But the above functions are non linear and can not be used directly to formulate linear constraints.\\
+
+\subsubsection*{\textit {linearization}}
+In order to employ \ref{tot_clb}, \ref{tot_bram} and \ref{tot_dsp} as linear constraint, they must first be linearized. To linearize these functions we define three auxilary real variables $\tau1_{ijk}$, $\tau2_{ijk}$ and $\tau3_{ijk}$. \\
+
+$\tau1_{ijk}$ $\in$ $\mathbb{R}$ $\mid$ $\tau1_{ijk}$ = $\beta_{ijk}$ $\cdot$ clb$_i$ \\
+
+$\tau2_{ijk}$ $\in$ $\mathbb{R}$ $\mid$ $\tau2_{ijk}$ = $\beta_{ijk}$ $\cdot$ bram$_i$ \\
+
+$\tau3_{ijk}$ $\in$ $\mathbb{R}$ $\mid$ $\tau3_{ijk}$ = $\beta_{ijk}$ $\cdot$ dsp$_i$ \\
+
+Hence CLB(x$_i$,y$_i$,w$_i$,h$_i$), BRAM(x$_i$,y$_i$,w$_i$,h$_i$) and DSP(x$_i$,y$_i$,w$_i$,h$_i$) can be restated as 
+
+\begin{equation}
+CLB(x_i,y_i,w_i,h_i) = \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r} \tau1_{ijk}
+\end{equation}
+
+
+\begin{equation}
+BRAM(x_i,y_i,w_i,h_i) = \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r} \tau2_{ijk}
+\end{equation}
+
+\begin{equation}
+DSP(x_i,y_i,w_i,h_i) = \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r} \tau3_{ijk}
+\end{equation}
+
+Now the non linear expression is replaced by a linear one and to complete the linearlization a few constraints must be set. The following are constraints related to $\tau1_{ijk}$ but similar constraints can be set for $\tau2_{ijk}$ and $\tau3_{ijk}$.
+
+\begin{constraint} $\forall$ i = 1...,N\textsuperscript{max}, $\forall$ j = 1...,clk$\_$reg\textsuperscript{max}, $\forall$ k = 1...,r
+\begin{equation}
+\begin{split}
+\tau1_{ijk} & \geq 0 \\
+\tau1_{ijk} & \leq BIG\_M \cdot \beta_{ijk} \\ 
+\tau1_{ijk} & \leq clb_i \\
+\tau1_{ijk} & \geq clb_i - (1 - \beta_{ijk}) \\
+clb\_req_i  & \geq \sum_{j=1}^{clk\_reg} \sum_{k=1}^{r} \tau1_{ijk}
+\end{split}
+\end{equation}
+\end{constraint}
+
+
+\subsubsection{\textbf{Non-interference constraints}}
+\subsubsection*{\textit {clock region aligned boundary}}  
+A frame (tile) is the smallest reconfigurable physical region and it spans one clock region high and one resource type wide. A reconfigurable frame can not contain logic from more than one reconfigurable partition hence the boundaries of a slot S$_i$ must be forced to fit in to clock region boundaries. 
+Such a constraint is enforced by forcing all the rows in a clock region to also be included in the slot if atleast one is included i.e., if one row in a clock region j is part of a slot then the remaining rows within the same clock region j must also be forced to be part of the same slot to satisfy this constraint. \\
+To help us set this constraint we define an intermediate variable \\
+l$_{j}$  $\in$ $\mathbb{Z}$ $\mid$ $\forall$ j = 1...,clk$\_$reg\textsuperscript{max}, $\forall$ k = 1...,r
+\begin{equation}
+\begin{split}
+l_j = \sum_{k=1}^{r} \beta_{ijk}
+\end{split}
+\end{equation}
+
+then the following constraint will force the slot boundaries to be aligned with the clock region boundaries by forcing $\beta_{ijk}$ to become part of the slot if at least one row with in the same clock region becomes part of slot S$_i$
+
+\begin{constraint}  $\forall$ i = 1...,N\textsuperscript{max}, $\forall$ j = 1...,clk$\_$reg\textsuperscript{max}, $\forall$ k = 1...,r
+\begin{equation}
+\begin{split}
+\beta_{ijk} \geq \sum_{k=0}^{r}  (l_j - beta_{ijk}) / (r - 1)
+\end{split}
+\end{equation}
+\end{constraint}
+
+\subsubsection*{\textit {Interference between two slots}}
+Two slots S$_i$ and S$_k$ are said to be non interfering under the following conditions
+\begin{algorithmic}
+\IF{x$_i$ $\leq$ x$_k$ and y$_i$ $\leq$ y$_k$}
+	\STATE x$_i$ + w$_i$ $<$ x$_k$ or y$_i$ + h$_i$ $<$ y$_k$
+\ELSIF {x$_i$ $\geq$ x$_k$ and y$_i$ $\geq$ y$_k$}
+	\STATE x$_i$ + w$_k$ $<$ x$_i$ or y$_k$ + h$_k$ $<$ y$_i$
+\ELSIF {x$_1$ $<$ x$_k$ and y$_i$ $>$ y$_k$}
+	\STATE x$_i$ + w$_i$ $<$ x$_k$ or y$_k$ + h$_k$ $<$ y$_i$
+\ELSE
+	\STATE x$_k$ + w$_k$ $<$ x$_k$ or y$_i$ + h$_i$ $<$ y$_k$
+\ENDIF
+\end{algorithmic}
+
+This above condition can be encoded into a set of MILP constraints as follows \\
+\begin{constraint} S$_i$ $\in$ N and S$_k$ $\in$ N
+\begin{equation} 
+\begin{split}
+\delta_{ik} & \geq \gamma_{ik} + \theta_{ik} + \Gamma_{ik} + \Omega_{ik} - 3 \\
+\delta_{ik} & \geq (1 - \gamma_{ik}) + \theta_{ik} + \eta_{ik} + \Omega_{ik} - 3 \\
+\delta_{ik} & \geq \gamma_{ik} +(1 - \theta_{ik}) + \Gamma_{ik} + \Psi_{ik} - 3 \\
+\delta_{ik} & \geq (1 - \gamma_{ik}) + (1 - \theta_{ik}) + \eta_{ik} + \Psi_{ik} - 3 \\
+\delta_{ik} & = 0 \\
+\end{split}
+\end{equation}
+\end{constraint}
+
+\subsubsection{\textit {Interference with Forbidden slots}}
+
+As stated before forbidden regions are also modeled as a normal slots hence the constraint for non intereference between a slot S$_i$ and a forbidden region F$_k$ can be set in the same way as done in the previous constraint formulation between two slots
+
+\begin{constraint} S$_i$ $\in$ N and F$_k$ $\in$ F
+\begin{equation}
+\begin{split}
+\delta_{ik} & \geq \mu_{ik} + \nu_{ik} + fbdn_1 + fbdn_3 - 3 \\
+\delta_{ik} & \geq (1 - \mu_{ik}) + \nu_{ik} + fbdn_2 + fbdn_3 - 3 \\
+\delta_{ik} & \geq \mu_{ik} + (1 - \nu_{ik}) + fbdn_1 + fbdn_4 - 3 \\
+\delta_{ik} & \geq (1 - \mu_{ik}) + (1 - \nu_{ik}) + fbdn_2 + fbdn_4 - 3 \\
+\delta_{ik} & = 0 \\
+\end{split}
+\end{equation}
+\end{constraint}

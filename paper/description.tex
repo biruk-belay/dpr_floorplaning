@@ -1,0 +1,95 @@
+\section{PR floorplanning Problem Description and Considerations}
+In this section we breifly describe the general architecture of FPGAs, the design flow in partial reconfiguration (PR) and the assumptions we set to model the PR floorplanning problem as a MILP problem.\\
+
+\subsection{FPGA architecture and Partial-Reconfiguration}
+\textbf{\\provide a relevant background on FPGAs, describe the basics of FPGA, how resources are organized,
+ talk about tiles of different resources, clock regions, static logic elements etc... 
+ Describe everything seen on the picture below} \\
+ 
+\begin{itemize}
+\item How is an fpga organized
+\item what are clock regions
+\item how does PR take place on the circuitry level
+\end{itemize}
+
+The reconfigurable fabric of Xilinx FPGAs is divided into quadrants named clock regions. Within each clock region there are grids (columns) of different resources with non uniform distribution. These resource can be CLBs, BRAMs or DSPs.  Resources within a clock region share the same clock. A single column of a specific type of resource in a clock region is referred to as a tile. The number of resources in a tile varies depending on the device family. For example in Virtex 7z a CLB tile contains 50 clbs a BRAM tile contains 10 brams and a DSP tile contains 20 dsps. In addition to the above mentioned resources, FPGAs also contain other components related to clock and clock modifying logic, I/O logic, configuration and debug logic etc..., Depending on the type of device family these components may or may not be included in a reconfigurable region. \\
+
+The configuration memory, which stores the bit file that contains configuration information for both the logic and routing resources on the FPGA, is  organized into minimal configurable units called frames. A single frame in the configuration memory is mapped into a single tile on the fabric. \\
+
+\textbf{put picture detailing FPGA architecture} \\
+
+Reconfigurable regions are rectangular in shape and to ease the routing and placement during implementation, the height of the reconfigurable region must be aligned to clock region boundareis. \\
+
+Partially reconfigurable applications are often composed of static and reconfigurable modules which respectively reside in the static and reconfigurable regions on the FPGA fabric. Partial-reconfiguration fundamentally involves dynamically switching modules in a reconfigurable region whilst other reconfigurable and static regions continue to be operational. As tiles are the minimal configuration unit in an FPGA, two reconfigurable regions must not share a tile. \\ 
+ 
+\subsection{Consideration for resource representation}
+\textbf{\\state how the fpga is divided into x-y coordinate system. Explain how current genaration of xilinx fpgas differ in resource distribution on the fabric} \\
+
+As shown in the figure, a cartesian coordinate system can be overlayed on FPGAs to identify each resource on the logic fabric. The x axis represents each column of resources while each row on the y axis represents a clock region. Hence resources are organized on a tile basis instead of being individually located as single clb, bram or dsps. This configuration matches the minimal reconfiguration unit philosophy of PR. \\
+
+A reconfigurable region R$_i$ is hence represented with (x$_i$, y$_i$, w$_i$, h$_i$) where x$_i$ and y$_i$ are the bottom left coordinate of R$_i$ and w$_i$ and h$_i$ are the width and height respectively. \\
+
+ 
+%The total number of a resource R within a slot S$_i$ = (x$_i$, y$_i$, w$_i$, h$_i$) is then equal to
+%\begin{equation}
+%R = (x_i + w_i) \cdot (y_i + h_i)
+%\end{equation}  
+
+\subsection{transformation to binary}
+\textbf{\\why do we need to linearize the grids and which grid is better to linearize. Justtify with a practical example.}\\
+
+A reconfigurable region, R$_i$, must contain at least the necessary number of resources required by a module that is going to be placed. Determining the number of resource contained in R$_i$ invloves determining the area of the rectangle. In formulating PR-floorplanning as a linear optimization problem the resource requirement constraints must also be linear. Hence to satisfy the condtion of modeling the resource requirement as a linear constraint either of the axis' must be discretized. Deciding which axis to discritize is an important design decision since reducing the number of binary variables leads to a scalable model. In all the FPGA families that were chosen to be studied for this project, the number of rows (the number of clock regions on the y axis) was less than the number of columns on the x axis. For example in kintex xc7z045fbv676 there are 100 columns on the x axis as opposed to 7 rows on the y axis.\\
+
+
+\subsection{FPGA resource finger-printing} 
+\textbf{\\what is fpga resource finger printing ? Plot a piecewise linear graph of a clb in a single row or put the function description of the piecewise linear graph} \\
+
+\begin{itemize}
+\item Joining two adjacent clock regions resources on a single row can be described from 0 to W-1
+\item the structure is regualr and it will repeat itself 
+\item discontinuties are modeled with forbidden regions
+\item Put a picture of the zynq implemenetaion and describe the clbs brams and dsp and plot the piecewise graph
+\end{itemize}
+
+
+
+The resources on FPGAs are not distributed uniformly which means  distributed. This means have 
+
+The FPGA is now abstracted using binary variables on the y axis and integers on the x axis. The fpga is also divided into clock regions. A clock regions spans r rows high. The total number of rows, which is designated as H, is the sum of rows in all clock regions {0... clk\_reg} i.e.,  
+\begin{equation}
+H = \sum_{j=0}^{clk\_reg} r
+\end{equation}
+
+The distribution of each resource on the x axis of the FPGA in a single row can be represented using a piece-wise linear function. For example in zynq xc7z015 the number of clbs on the x axis between the bottom left corner i.e., (0, 0) and a point x, on the x axis is represented using F(x) as  
+
+\begin{equation}
+F(x) = \begin{cases}
+x, & \textbf{ 0$\leq$x$<$4}, \\
+(x-1), & \textbf{4$\leq$x$<$7}, \\
+(x-2), & \textbf{7$\leq$x$<$10}, \\
+(x-3), & \textbf{10$\leq$x$<$15}, \\
+(x-4), & \textbf{15$\leq$x$<$18}, \\
+(x-5), & \textbf{18$\leq$x$<$22}, \\
+(x-6), & \textbf{22$\leq$x$<$25}, \\
+(x-7), & \textbf{25$\leq$x$<$W},
+\end{cases}
+\end{equation}
+
+The number of clb, in a height of a single row, between x$_i$ and x$_k$ where x$_i$ $\geq$ x$_k$ can then be represented as clb(x$_i$, x$_k$) such that 
+
+\begin{equation}
+clb(x_i, x_k) = F(x_k) - F(x_i)
+\end{equation}
+
+if $\beta_{ijk}$ represents row k in clock region j for slot i on the fpga then C(x$_i$, y$_i$, w$_i$, h$_i$) which is the total number of clbs in a slot S$_i$ can be calculated as 
+\begin{equation}
+C(x_i,y_i,w_i,h_i) = \sum_{j=0}^{clk\_reg} \sum_{k=0}^{r-1} \beta_{ijk} \cdot (F(x_i+w_i) - F(x_i))
+\label{clb_tot}
+\end{equation}
+where h$_i$ which is the height of S$_i$ and can be expressed as 
+
+\begin{equation}
+h_i = \sum_{j=0} ^{clk_reg} \sum_{k=0}^{r-1} \beta_{ijk}
+\end{equation}
+
+The same resource finger-printing using piecewise linear functions can be done to the bram and dsp on the fpga and this can then be used to determine the amount of a specific type of resource within a slot.
