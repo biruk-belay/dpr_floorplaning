@@ -1,0 +1,39 @@
+\section{Floorplanning problem formulation}
+
+\textbf{\\ put a picture of PR design flow in Xilinx} \\
+
+Partial-reconfiguration involves dynamically switching modules in a reconfigurable region whilst other reconfigurable and static regions continue to be operational. \textbf{Fig} depicts the PR design flow in Xilinx FPGAs as implemented in Xilinx Vivado. The major steps in the automated PR flow are \\
+
+\begin{itemize}
+\item \textit{Synthesis}: At this level the behavioral description of modules written in hardware description langauges (Verilog or VHDL) is converted into a gate-level netlist. In PR design flow, floorplanning is mandatory (it is optional in the standard flow) and it must be done before the implementation step.  
+\item \textit{Implementation}: In this step the gate-level netlist output of the previous stage is functionally mapped to specific device resources on the FPGA and then placed and routed.
+\item \textit{Bitstream generation}: In PR desgin flow, the final output of an FPGA design tool is a set of bit files which contain the configuration information for both the logic and routing resources of the static and reconfigurable regions. 
+\end{itemize} 
+
+\hfill \break
+
+In floorplanning for PR, each R$_i$, which are also named \textit{Pblocks} in the Xilinx design flow, are subject to the following restrictions and requirements. 
+
+\begin{enumerate}
+\item Reconfigurable regions must contain only valid reconfigurable resources (for example in 7 series FPGAs only CLBs, BRAMs and DSPs must be in R$_i$)
+\item The minimum number of resources incorporated by a reconfigurable region \textbf{R$_i$} (Pblock) must at least be equal to the resource requirement of the largest module hosted in the region
+
+\item Two reconfigurable regions must not overlap. Overlapping is equivalent to sharing at least a single tile
+
+\item The left and right edges of R$_i$ must not split interconnect columns 
+
+\item Reconfigurable regions(Pblocks) can span non reconfigurable components such as configuration blocks, central clock column etc... without considering them as part of the region(Pblocks)
+
+\item The height of R$_i$ must be aligned to clock regions. This is an optional requirement but enforcing it results in starting the reconfigurable module from a known initial state re-configuration
+
+\end{enumerate}
+
+
+
+\begin{comment}
+The central clock column divides the FPGA into left and right regions as shown in the figure. But all the horizontally adjacent clock regions are combined into a single clock region to make the x axis W units wide. The y axis is H units high. Combining horizontally adjacent clock regions into a single clock region does
+
+Reconfigurable regions need not necessarily be rectangular but assigning rectangular shapes to regions greatly reduces routing and placement challenges
+
+The bit files are deployed in the FPGA configuration memory. 
+\end{comment}
