@@ -1,12 +1,12 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.10.12)  5 NOV 2018 18:29
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2018.10.12)  8 NOV 2018 00:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**main.tex
-(./main.tex
+**../main.tex
+(../main.tex
 LaTeX2e <2016/02/01>
 Babel <3.9q> and hyphenation patterns for 81 language(s) loaded.
-(./IEEEtran.cls
+(/usr/share/texlive/texmf-dist/tex/latex/IEEEtran/IEEEtran.cls
 Document Class: IEEEtran 2015/08/26 V1.8b by Michael Shell
 -- See the "IEEEtran_HOWTO" manual for usage information.
 -- http://www.michaelshell.org/tex/ieeetran/
@@ -338,41 +338,49 @@ Package: verbatim 2014/10/28 v1.5q LaTeX2e package for verbatim enhancements
 \verbatim@line=\toks22
 \verbatim@in@stream=\read1
 )
+(/usr/share/texlive/texmf-dist/tex/latex/mdwtools/footnote.sty
+Package: footnote 1997/01/28 1.13 Save footnotes around boxes
+\fn@notes=\box30
+\fn@width=\dimen137
+)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/xr.sty
+Package: xr 1994/05/28 v5.02 eXternal References (DPC)
+)
 \c@constraint=\count111
- (./main.aux)
+
+No file main.aux.
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 21.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 21.
-
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 23.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 23.
 (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    ... okay on input line 23.
 
 -- Lines per column: 56 (exact).
 (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count112
-\scratchdimen=\dimen137
-\scratchbox=\box30
+\scratchdimen=\dimen138
+\scratchbox=\box31
 \nofMPsegments=\count113
 \nofMParguments=\count114
 \everyMPshowfont=\toks23
 \MPscratchCnt=\count115
-\MPscratchDim=\dimen138
+\MPscratchDim=\dimen139
 \MPnumerator=\count116
 \makeMPintoPDFobject=\count117
 \everyMPtoPDFconversion=\toks24
@@ -424,309 +432,41 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-LaTeX Font Info:    Try loading font information for U+msa on input line 42.
+LaTeX Font Info:    Try loading font information for U+msa on input line 44.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 42.
+LaTeX Font Info:    Try loading font information for U+msb on input line 44.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 42.
- (./introduction.tex
-Underfull \hbox (badness 10000) in paragraph at lines 2--4
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 44.
 
- []
 
+! LaTeX Error: File `introduction.tex' not found.
 
-Underfull \hbox (badness 10000) in paragraph at lines 5--7
+Type X to quit or <RETURN> to proceed,
+or enter new name. (Default extension: tex)
 
- []
+Enter file name: x
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 8--10
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 11--13
-
- []
-
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 14.
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/omsptm.fd
-File: omsptm.fd 
-)
-LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 14.
-
-Underfull \hbox (badness 10000) in paragraph at lines 14--15
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 14--15
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 16--17
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 18--20
-
- []
-
-) (./related_works.tex) (./model.tex
-Underfull \hbox (badness 10000) in paragraph at lines 2--3
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 6--8
-
- []
-
-[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
-
-
-]
-Underfull \hbox (badness 10000) in paragraph at lines 9--10
-
- []
-
-
-Underfull \hbox (badness 2894) in paragraph at lines 11--12
-\OT1/ptm/m/n/10 mod-ules that are to be placed in \OT1/ptm/b/n/10 N$[]$ \OT1/pt
-m/m/n/10 static and \OT1/ptm/b/n/10 N$[]$
- []
-
-
-Underfull \hbox (badness 1960) in paragraph at lines 11--12
-\OT1/ptm/m/n/10 de-fined as the pro-cess of al-lo-cat-ing place-ment for \OT1/p
-tm/m/it/10 N$[]$
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 11--12
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 13--14
-
- []
-
-
-Underfull \hbox (badness 1540) in paragraph at lines 16--17
-\OT1/ptm/m/n/10 can be over-layed on FP-GAs to uniquely iden-tify each
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 16--17
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 18--19
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 25--26
-
- []
-
-
-Underfull \hbox (badness 2285) in paragraph at lines 30--31
-[]\OT1/ptm/m/n/10 Floorplanning is a two di-men-sional prob-lem in that
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 30--31
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 32--34
-
- []
-
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 47--48
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 55--56
-
- []
-
-) (./problem.tex
-Underfull \hbox (badness 10000) in paragraph at lines 3--4
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 5--6
-[]\OT1/ptm/m/n/10 Partial-reconfiguration in-volves dy-nam-i-cally switch-ing
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 5--6
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 13--14
-
- []
-
-) (./milp_formulation.tex
-Underfull \hbox (badness 10000) in paragraph at lines 87--88
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 127--128
-
- []
-
-
-Underfull \hbox (badness 5726) in paragraph at lines 130--131
- \OT1/ptm/m/it/10 1) \OT1/ptm/b/it/10 Se-man-tics con-straints\OT1/ptm/m/it/10 
-: [][] \OT1/ptm/m/n/10 The fol-low-ing con-straints
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 130--131
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 139--141
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 139--141
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 150--153
-
- []
-
-[3]
-Underfull \hbox (badness 10000) in paragraph at lines 161--164
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 174--177
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 200--201
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 203--204
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 205--206
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 207--208
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 209--210
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 211--212
-[]\OT1/ptm/m/n/10 Hence CLB(x$[]$,y$[]$,w$[]$,h$[]$), BRAM(x$[]$,y$[]$,w$[]$,h$
-[]$) and
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 279--280
-
- []
-
-[4]) (./exps.tex
-Underfull \hbox (badness 10000) in paragraph at lines 3--5
-
- []
-
-
-Underfull \hbox (badness 4608) in paragraph at lines 7--8
-[]\OT1/ptm/m/n/10 The sys-tem is tested for Exec time Vs Num of
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 7--8
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 9--10
-
- []
-
-)
-
-** Conference Paper **
-Before submitting the final camera ready copy, remember to:
-
- 1. Manually equalize the lengths of two columns on the last page
- of your paper;
-
- 2. Ensure that any PostScript and/or PDF output post-processing
- uses only Type 1 fonts and that every step in the generation
- process uses the appropriate paper size.
-
-[5
-
-] (./main.aux) ) 
+ )
+(\end occurred when \ifx on line 54 was incomplete)
+(\end occurred when \ifx on line 54 was incomplete) 
 Here is how much of TeX's memory you used:
- 4507 strings out of 493029
- 65043 string characters out of 6136233
- 143513 words of memory out of 5000000
- 7955 multiletter control sequences out of 15000+600000
- 47092 words of font info for 101 fonts, out of 8000000 for 9000
+ 4470 strings out of 493029
+ 64998 string characters out of 6136233
+ 128293 words of memory out of 5000000
+ 7949 multiletter control sequences out of 15000+600000
+ 32304 words of font info for 83 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,19n,35p,1595b,300s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
-msfonts/symbols/msbm10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times
-/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></
-usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (5 pages, 149195 bytes).
+ 38i,11n,35p,240b,288s stack positions out of 5000i,500n,10000p,200000b,80000s
+
+No pages of output.
 PDF statistics:
- 69 PDF objects out of 1000 (max. 8388607)
- 49 compressed objects within 1 object stream
+ 0 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -3,59 +3,63 @@ In this section we breifly describe the general architecture of FPGAs, the desig
 
 \subsection{FPGA Architecture and Partial-Reconfiguration}
 
-The configurable fabric of Xilinx FPGAs is divided into quadrants named clock regions. Within each clock region there are columns of different configurable resources with non uniform distribution. These resource can be CLBs, BRAMs or DSPs.  Resources within a clock region share the same clock. A single column in a clock region is referred to as a tile. The number of resources in a tile varies depending on the device family. For example in Virtex 7z a CLB tile contains 50 clbs a BRAM tile contains 10 brams and a DSP tile contains 20 dsps. The functional logic compoenets (clbs, brams and dsps) and the routing logic components (switches, interconnects etc...) on the FPGA are configured based on a bit file stored in the configuration memory of an FPGA. This memory is organized into minimal configurable units called frames. A single frame in the configuration memory corresponds to a single tile on the fabric. In addition to the above mentioned resources, FPGAs also contain other components such as clock and clock modifying logic, I/O logic, configuration logic etc... Depending on the type of device family some of these components may or may not be included in a reconfigurable region. FPGAs, in particular 7 series devices, which are subject of this work, also contian routing resources called interconnect tiles. These tiles are placed back-to-back as shown in the \textbf{fig}. When floorplanning for partial reconfiguration, the position of these back-to-back boundaries must be known inorder not to split them and violate PR restriction. 
-\\
+The configurable fabric of Xilinx FPGAs is divided into quadrants named clock regions. Within each clock region there are columns of different configurable resources such as CLBs, BRAMs or DSPs.  Resources within a clock region share the same clock. A single column in a clock region is referred to as a tile. The number of resources in a tile varies depending on the device family. For example in Virtex 7z a CLB tile contains 50 clbs a BRAM tile contains 10 brams and a DSP tile contains 20 dsps. The functional logic compoenets (clbs, brams and dsps) and the routing logic components (switches, interconnects etc...) on the FPGA are configured based on a bit file stored in the configuration memory of an FPGA. This memory is organized into minimal configurable units called frames. A single frame in the configuration memory corresponds to a single tile on the fabric. In addition to the above mentioned resources, FPGAs also contain other components such as clock and clock modifying logic, I/O logic, configuration logic etc... Depending on the type of device family some of these components may or may not be included in a reconfigurable region. FPGAs, in particular 7 series devices, which are subject of this work, also contian routing resources called interconnect tiles. These tiles are placed back-to-back as shown in Fig \ref{fig:fpga}. When floorplanning for partial reconfiguration, the position of these back-to-back boundaries must be known inorder not to split them and violate PR restriction.
 
-\textbf{\\put picture detailing FPGA architecture with interconnect resources} \\
+\begin{figure}
+  \includegraphics[width=\linewidth]{graphics/fpga.png}
+  \caption{FPGA architecture}
+  \label{fig:fpga}
+\end{figure}
 
 Partially reconfigurable applications are often composed of \textbf{\textit{M$_s$}} number of static and \textbf{\textit{M$_r$}} number of reconfigurable modules that are to be placed in \textbf{N$_s$} static and \textbf{N$_r$} reconfigurable regions on the FPGA respectively.  In PR applications the number of static modules equals to the number of static regions i.e., \textit{M$_s$ = N$_s$} while the number of reconfigurable modules is always greater than reconfigurable regions i.e., \textit{M$_r$ $>$ N$_r$}. Floorplanning in PR can then be defined as the process of allocating placement for \textit{N$_r$} reconfigurable regions on the FPGA fabric. \\
 
 \textbf{state how PR-fp is currently done in vivado} \\
 
 \subsection{Combining clock regions}
-The central clock column divides the FPGA into left and right regions as show on \textbf{fig}. But in our model we reduced the number of clock regions by combining all the horizontally adjacent clock regions into a single clock region. This simplifies our modeling without no penalty. As shown in the figure \textbf{fig}, a cartesian coordinate system can be overlayed on FPGAs to uniquely identify each resource on the logic fabric. The x axis represents each column of resources while the rows on the y axis represent fused horizontally adjacent clock regions. Combining the horizontally adjacent clock regions results in a low range of variables on the y axis. Added to that, organizing resources on the y axis on a per tile (per clock region) basis instead of as individual clbs, brams or dsps further contributes for a feasible floorplan as it constrains reconfigurable regions to be aligned to clock regions. Based on this abstraction the FPGA fabric is \textbf{W} columns wide and \textbf{H} clock regions high.  \\
+On Xilinx FPGAs, the central clock column divides the FPGA into left and right regions as shown on fig \ref{fig:fpga}. But in our model all the horizontally adjacent clock regions were fused into a single clock region. This simplifies our modeling with no penalty. As also shown in the figure on fig \ref{fig:fpga}, a cartesian coordinate system can be overlayed on FPGAs to uniquely identify each resource on the logic fabric. The x axis represents each column of resources while the rows on the y axis represent the fused horizontally adjacent clock regions as indicated on fig \ref{fig:fpga}. Combining the horizontally adjacent clock regions\footnote{henceforth clock regions implies horizontally fused clock regions}, in addition to resulting in a lower range of variables on the y axis, organizes resources on the y axis on a per tile (per clock region) basis instead of as individual clbs, brams or dsps. This reduces the search space for the solution in the MILP formulation at the expense of wasting resources. Based on this abstraction the resources on the FPGA fabric on a tile basis, the FPGA would become \textbf{W} columns wide and \textbf{H} clock regions high.  \\
 
-A reconfigurable rectangular region R$_i$ $\in$ N$_r$ is represented as \\
-
-$\forall$ i = 1...,N$_r$ $\wedge$  x$_i$, y$_i$, w$_i$, h$_i$ $\in$ $\mathbb{Z}$
+The i\textsuperscript{th} reconfigurable region R$_i$ is a rectangular region on the FPGA fabric that hosts, at different durations, the set of reconfigurable modules assigned to it. R$_i$ can be represented as
 \begin{equation}
-R_i = (x_i, y_i w_i, h_i) \mid x_i + w_i \leq W, y_i + h_i \leq H
+R_i = (x_i, y_i, w_i, h_i) \mid x_i + w_i \leq W, y_i + h_i \leq H
 \end{equation}
 
-where x$_i$ and y$_i$ represent the bottom left coordinate and w$_i$ and h$_i$ represent the width and height of R$_i$ resectively. A resource type \textit{t} that is required by reconfigurable module \textit{M$_r$} is denoted as \textit{c$_{rt}$} while the same type of resource that is incorporated inside a reconfigurable region R$_i$ is denoted as $\eta_{it}$.\\ 
+where x$_i$ and y$_i$ represent the bottom left coordinate and w$_i$ and h$_i$ represent the width and height of R$_i$ resectively. A resource type \textit{t} that is required by reconfigurable module \textit{M$_r$} is denoted as \textit{c$_{rt}$} while the same type of resource that is incorporated inside a reconfigurable region R$_i$ is denoted as $\eta_{it}$. The upper and lower boundaries of R$_i$ are aligned to clock region boundaries since the resources on the fabric are organized on a tile basis. 
 
 \textbf{\\talk about the modeling of forbidden regions}
 
 \subsection{Discretization of the axis}
-Floorplanning is a two dimensional problem in that determining the number of resource contained in R$_i$ invloves determining the resources on both axis i.e., determining the area of the rectangle. In formulating PR-floorplanning as a linear optimization problem the resource requirement constraints must also be linear. Hence to satisfy the condtion of modeling the resource requirement as a linear constraint either of the axis must be discretized. Deciding which axis to discritize is an important design decision since a reduced number of binary variables leads to an easily scalable model. In all the FPGA families that were chosen to be studied for this project, the number of rows (the number of clock regions on the y axis) was less than the number of columns on the x axis. For example in kintex xc7z045fbv676 there are 100 columns on the x axis as opposed to 7 rows (after combining all the horizontally adjacent clock regions separated by the central clock column) on the y axis. Hence we define \\
+Floorplanning is a two dimensional (quadratic) problem in that determining the number of resource contained in R$_i$ invloves determining the resources on both axis i.e., the area of the rectangle. To linearize this problem either of the axis must be discretized. A good strategy for discretization would be choosing the axis with the lower range of variables as this leads to an easily scalable model. In all the FPGA families that were chosen to be studied for this project, the range of the y axis (the number of clock regions on the y axis) was less than the range of the x axis i.e., H $<$ W. For example in kintex xc7z045fbv676 there are 100 columns on the x axis as opposed to 7 clock regions on the y axis. Hence the binary variable $\beta_{ij}$ denotes clock region j in region in R$_i$. \\
 
-$\forall$ i = 1...,N$_r$, $\forall$ j = 1...,H \\
-$\beta_{ij}$ $\in$ [0,1] $\mid$ $\beta_{ij}$ represents a clock region j in R$_i$. \\
+%$\forall$ i = 1...,N$_r$,  $\forall$ j = 1...,H \\
+%$\beta_{ij}$ $\in$ [0,1] $\mid$ $\beta_{ij}$ represents clock region j in R$_i$. \\
 
 \subsection{FPGA resource finger-printing} 
-As described in the previous section the proposed floorplanner takes as an input the resource description of the FPGA fabric and the resource requirement of each reconfigurable region and produces a feasible placement for each region. Resources in most FPGAs are distributed in a redundant manner this is to say that vertically adjacent clock regions have a fairly similar distribution of resources with the possibility of different forbidden clock regions being included in different clock regions. Hence describing the resources in a single clock region and the forbidden regions in all clock regions would be a fairly easy was of describing all the resources in all clock regions. The function f$_t$(x) is a piecewise function that can be used to describe the distribution of resource type \textit{t} in the first clock region of the FPGA and $\mu_t$ is a constant that denotes the number resource \textit{t} per tile. As an example f$_t$(x) for the clbs on \textbf{fig} can be described as 
+Resources in most Xilinx FPGAs are distributed in a redundant manner this is to say vertically adjacent clock regions have a fairly similar distribution of resources with the possibility of different forbidden regions being included in them. Hence the reconfigurable fabric of most Xilinx FPGAs can accurately be represented by describing the resources in a single clock region and the location of forbidden regions in all clock regions. This process is equivalent to developing the resource distribution finger-print of a specifc type of FPGA. For each resource type \textit{t} a piecewise function f$_t$(x) can be used to describe the distribution of that particular resource inside the first clock region of the FPGA along the x axis. As an example f$_t$(x) for the first clock region on fig \ref{fig:fpga} would be 
 
+\begin{figure}
+  \includegraphics[width=\linewidth]{graphics/resource.png}
+  \caption{Resource distribution finger print of fig \ref{fig:fpga}}
+  \label{fig:finger-print}
+\end{figure}
+
+
+\begin{comment}
 \begin{equation}
 f_c(x) = \begin{cases}
 \mu_c * x, & \textbf{ 0$\leq$x$<$4}, \\
 \mu_c * (x-1), & \textbf{4$\leq$x$<$7}, \\
+\mu_c * (x-2), & \textbf{7$\leq$x$<$W}, \\
 \end{cases}
 \end{equation}
+\end{comment}
 
-\textbf{fig} depicts f$_t$(x) for the first clock region zynq xc7z015.
+%\textbf{fig} depicts f$_t$(x) for the first clock region zynq xc7z015.
 
-\textbf{\\put a picture of piecewise graphs for zynq for bram, clb and dsp} \\
+If $\mu_t$ is a constant that denotes the number of resource \textit{t} per tile, the amount of each type of resource included inside a region R$_i$ i.e., $\eta_it$ can be defined as \\
 
-The height h$_i$ of a reconfigurable region R$_i$ is the sum of all the clock regions included in the region \\
-$\forall$ i = 1...,N$_r$, $\forall$ j = 1...,H
 \begin{equation}
- h_i = \sum_{j=1}^{H} \beta_{ij}
-\end{equation}
-
-Accordingly, the amount of each type of resource included inside a region R$_i$ can be defined as \\
-\begin{equation}
-\eta_{it} = \sum_{j=1}^{H} \beta_{ij} \cdot (f_c(x_i+w_i) - f_c(x_i))
-\label{clb_tot}
+\label{model:eq:4}
+\eta_{it} = \sum_{j=1}^{H} \beta_{ij} \cdot (f_t(x_i+w_i) - f_t(x_i)) * \mu_t
 \end{equation}
 
 \begin{comment}
