@@ -17,6 +17,7 @@ fp::fp(QWidget *parent) :
     ui->setupUi(this);
     zynq = new fpga();
     virt = new virtex();
+    virt_5 = new virtex_5();
 
     init_gui();
 
@@ -40,6 +41,9 @@ fp::fp(QWidget *parent) :
     for(i = 0; i < virt->num_forbidden_slots; i++)
         forbidden_region_virtex[i] = virt->forbidden_pos[i];
 
+    for(i = 0; i < virt_5->num_forbidden_slots; i++)
+        forbidden_region_virtex_5[i] = virt_5->forbidden_pos[i];
+
     for(i = 0; i < zynq->num_forbidden_slots; i++) {
         forbidden_region_zynq[i] = zynq->fbdn_pos[i];
         cout<< " fbdn" << forbidden_region_zynq[i].x << endl;
@@ -55,6 +59,7 @@ void fp::init_gui()
 {
     ui->comboBox->addItem("Zynq");
     ui->comboBox->addItem("Virtex");
+    ui->comboBox->addItem("virtex_5");
 }
 
 void fp::paint_virtex()
@@ -65,9 +70,9 @@ void fp::paint_virtex()
     int frame_height, frame_width;
 
     int pos_ptr_x, pos_ptr_y, bram_pos_ptr, dsp_pos_ptr, forbdn_ptr;
-    int brams = 0, dsps = 0, forbdns;
+    int brams = 0, dsps = 0;
     int bound, rec_height;
-    bool is_bram = false, is_dsp = false, is_forbidden = false;
+    bool is_bram = false, is_dsp = false;
 
     QPen clk_reg_pen, rec_pen;
     QBrush br(Qt::black);
@@ -109,10 +114,7 @@ void fp::paint_virtex()
 
         if(dsps > 0)
             is_dsp = true;
-/*
-        if(forbdns > 0)
-            is_forbidden = true;
-*/
+
         clk_reg_pen.setColor(colors[2]);
         clk_reg_pen.setWidth(2);
 
@@ -151,20 +153,7 @@ void fp::paint_virtex()
                     is_dsp = false;
                 }
             }
-/*
-            if(is_forbidden) {
-                if(pos_ptr_x + j + 1 == virt->clk_reg[i].forbidden_pos[forbdn_ptr]) {
-                    rec_pen.setColor(Qt::black);
-                    bound = 1; //zynq.clk_reg[i].dsp_per_column;
-                    rec_height = clk_reg_height; // bram_height;
 
-                if(forbdns - 1 !=  0)
-                    forbdn_ptr += 1;
-                else
-                    is_forbidden = false;
-                }
-            }
-*/
             for(k = 0; k < bound; k++) {
                 fp_rect = scene.addRect((pos_ptr_x * clb_width +  j * clb_width) / virtex_scale,
                                          (pos_ptr_y * clb_height + k * rec_height) / virtex_scale,
@@ -182,6 +171,128 @@ void fp::paint_virtex()
                                 (virt->forbidden_pos[i].w * clb_width) / 3,
                                 (virt->forbidden_pos[i].h * clb_height * 5)/ 3, rec_pen, br);
     }
+}
+
+
+
+void fp::paint_virtex_5()
+{
+
+    int i, j, k;
+    int clk_reg_width, clk_reg_height;
+    int frame_height, frame_width;
+
+    int pos_ptr_x, pos_ptr_y, bram_pos_ptr, dsp_pos_ptr, forbdn_ptr;
+    int brams = 0, dsps = 0, forbdns;
+    int bound, rec_height;
+    bool is_bram = false, is_dsp = false, is_forbidden = false;
+
+    QPen clk_reg_pen, rec_pen;
+    QBrush br(Qt::black);
+
+    fp::clb_height = 8;
+    fp::bram_height = 40;
+    fp::dsp_height = 20;
+
+    virtex_scale = 2;
+
+    Qt::GlobalColor colors [] = {Qt::GlobalColor::red, Qt::GlobalColor::magenta,
+                                 Qt::GlobalColor::blue, Qt::GlobalColor::cyan,
+                                 Qt::GlobalColor::yellow};
+
+    total_height = virt_5->num_rows * bram_height * virt_5->num_clk_reg / 2;
+    //cout << "virt " << total_height << " " << virt->num_clk_reg << endl;
+
+    frame_height = ui->graphicsView->geometry().height();
+    frame_width = ui->graphicsView->geometry().width();
+
+    for(i = 0; i < virt_5->num_clk_reg ; i++) {
+        clk_reg_width = virt_5->clk_reg[i].clk_reg_pos.w * clb_width;
+        clk_reg_height = virt_5->clk_reg[i].clb_per_column * clb_height;
+
+       // cout << "height" << clk_reg_height << " " << clk_reg_width << endl;
+        bram_pos_ptr =  0; //zynq.clk_reg[i].bram_num;
+        dsp_pos_ptr = 0;
+        forbdn_ptr = 0;
+
+        pos_ptr_x = virt_5->clk_reg[i].clk_reg_pos.x;
+        pos_ptr_y = virt_5->clk_reg[i].clk_reg_pos.y;
+        brams = virt_5->clk_reg[i].bram_num;
+
+        //cout << "brams " << brams <<endl;
+        dsps = virt_5->clk_reg[i].dsp_num;
+  //      forbdns = virt->clk_reg[i].forbidden_num;
+
+
+        if(brams > 0)
+            is_bram = true;
+
+        if(dsps > 0)
+            is_dsp = true;
+
+/*
+        if(forbdns > 0)
+            is_forbidden = true;
+*/
+
+        clk_reg_pen.setColor(colors[2]);
+        clk_reg_pen.setWidth(2);
+
+        fp_rect = scene.addRect((virt_5->clk_reg[i].clk_reg_pos.x * clb_width) / virtex_scale,
+                (virt_5->clk_reg[i].clk_reg_pos.y * clb_height) / virtex_scale,
+                clk_reg_width / virtex_scale, clk_reg_height / virtex_scale, clk_reg_pen, brush);
+
+        for(j = 0; j < virt_5->clk_reg[i].clk_reg_pos.w; j++) {
+            rec_height = clb_height;
+            bound = virt_5->clk_reg[i].clb_per_column;
+            rec_pen.setColor(Qt::blue);
+            rec_pen.setWidth(1);
+
+            if(is_bram) {
+                if(pos_ptr_x + j + 1 == virt_5->clk_reg[i].bram_pos[bram_pos_ptr]) {
+                    rec_pen.setColor(Qt::red);
+                    bound = virt_5->clk_reg[i].bram_per_column;
+                    rec_height = bram_height;
+
+                if(brams - 1 !=  0)
+                    bram_pos_ptr += 1;
+                else
+                    is_bram = false;
+                }
+            }
+
+            if(is_dsp) {
+                if(pos_ptr_x + j + 1 == virt_5->clk_reg[i].dsp_pos[dsp_pos_ptr]) {
+                    rec_pen.setColor(Qt::green);
+                    bound = virt_5->clk_reg[i].dsp_per_column;
+                    rec_height = dsp_height;
+
+                if(dsps - 1 !=  0)
+                    dsp_pos_ptr += 1;
+                else
+                    is_dsp = false;
+                }
+            }
+
+
+            for(k = 0; k < bound; k++) {
+                fp_rect = scene.addRect((pos_ptr_x * clb_width +  j * clb_width) / virtex_scale,
+                                         (pos_ptr_y * clb_height + k * rec_height) / virtex_scale,
+                                        clb_width / virtex_scale, rec_height / virtex_scale, rec_pen, brush);
+            }
+
+            scene.setBackgroundBrush(fp::brush_background);
+        }
+    }
+
+    for(i = 0; i < virt_5->num_forbidden_slots; i++) {
+        rec_pen.setColor(Qt::black);
+        fp_rect = scene.addRect((virt_5->forbidden_pos[i].x * clb_width) / virtex_scale,
+                                (((70 - virt_5->forbidden_pos[i].y - virt_5->forbidden_pos[i].h + 10) * clb_height) * 2)/ virtex_scale,
+                                (virt_5->forbidden_pos[i].w * clb_width) / virtex_scale,
+                                (virt_5->forbidden_pos[i].h * clb_height * 2)/ virtex_scale, rec_pen, br);
+    }
+
 }
 
 //this function first plots the FPGA visualizer
@@ -307,9 +418,20 @@ void fp::fpga_pressed()
         fp::bram_height = 30;
         fp::dsp_height = 15;
         scene.clear();
-        qDebug() << "selected zynq" << endl;
+        qDebug() << "selected virtex" << endl;
         paint_virtex();
     }
+
+    else if(ui->comboBox->currentText() == "virtex_5") {
+        type = VIRTEX_5;
+        fp::clb_height = 8;
+        fp::bram_height = 40;
+        fp::dsp_height = 20;
+        scene.clear();
+        qDebug() << "selected virtex 5" << endl;
+        paint_virtex_5();
+    }
+
 }
 
 void fp::set_pressed()
@@ -343,8 +465,13 @@ void fp::set_pressed()
      scene.clear();
      if(type == ZYNQ)
         paint_zynq();
-     else
+
+     else if(type == VIRTEX)
         paint_virtex();
+
+     else if(type == VIRTEX_5)
+         paint_virtex_5();
+
 }
 
 void fp::enter_pressed()
@@ -383,8 +510,12 @@ void fp::start_pressed()
     scene.clear();
     if(type == ZYNQ)
        paint_zynq();
-    else
+    else if(type == VIRTEX)
        paint_virtex();
+
+    else if(type == VIRTEX_5)
+       paint_virtex_5();
+
 
     if(type == VIRTEX) {
         param.forbidden_slots = virt->num_forbidden_slots;
@@ -406,6 +537,16 @@ void fp::start_pressed()
         zynq_start_optimizer(&param, &from_solver);
     }
 
+    if(type ==VIRTEX_5) {
+        param.forbidden_slots = virt_5->num_forbidden_slots;
+        param.num_rows = virt_5->num_rows;
+        param.width = virt_5->width;
+        param.fbdn_slot = &forbidden_region_virtex_5;
+
+         virtex_start_optimizer_v5(&param, &from_solver);
+        scale = 2;
+    }
+
     //calibrate the data returned from optimizer for visualization
     plot_rects(&from_solver);
 
@@ -415,7 +556,7 @@ void fp::start_pressed()
 
     for(m = 0; m < num_slots; m++) {
         scene.addRect(x_vector[m] / scale, y_vector[m] / scale, w_vector[m] / scale, h_vector[m] / scale, slot_pen, brush);
-//        qDebug() << x_vector[m] << " " << y_vector[m] << " " << w_vector[m] << " " << h_vector[m] << endl;
+        qDebug() << x_vector[m] << " " << y_vector[m] << " " << w_vector[m] << " " << h_vector[m] << endl;
     }
 }
 
@@ -553,8 +694,8 @@ void fp::set_util()
 
     qDebug() << "clbs " <<clb_mod << " bram " << bram_mod << " dsp " << dsp_mod << endl;
     clb_vec = fp::get_units_per_task(num_slots, clb_mod, clb_min, clb_max);
-    bram_vec = fp::get_units_per_task(num_slots, bram_mod , bram_min, bram_max);
-    dsp_vec = fp::get_units_per_task(num_slots, dsp_mod, dsp_min, dsp_max);
+    //bram_vec = fp::get_units_per_task(num_slots, bram_mod , bram_min, bram_max);
+    //dsp_vec = fp::get_units_per_task(num_slots, dsp_mod, dsp_min, dsp_max);
 
     for(i = 0; i < num_slots; i++) {
           //cout<< "clb" << i << " " <<clb_vec[i] << " bram" << i << " " << bram_vec[i] << " dsp" << i << " " <<dsp_vec[i] <<endl;

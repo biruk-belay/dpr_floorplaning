@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include "/opt/gurobi702/linux64/include/gurobi_c++.h"
 #include "../../../floorplan/engine/include/zynq_model.h"
@@ -21,7 +21,7 @@ static unsigned long num_forbidden_slots;
 static unsigned long BIG_M = 65535;
 static unsigned long num_clk_regs = 7;
 
-unsigned long wasted_clb, wasted_bram, wasted_dsp;
+unsigned long wasted_clb_v5, wasted_bram_v5, wasted_dsp_v5;
 
 static int status;
 static unsigned long delta_size;
@@ -37,15 +37,15 @@ static unsigned long clb_max = 30000;
 static unsigned long bram_max = 10000;
 static unsigned long dsp_max = 10000;
 
-vector<int> clb_req_v5 (MAX_SLOTS);
-vector<int> bram_req_v5 (MAX_SLOTS);
-vector<int> dsp_req_v5 (MAX_SLOTS);
+vector<int> clb_req (MAX_SLOTS);
+vector<int> bram_req(MAX_SLOTS);
+vector<int> dsp_req(MAX_SLOTS);
 
-Vecpos fs_v5(MAX_SLOTS);
+Vecpos fs(MAX_SLOTS);
 
-int solve_milp_virtex(param_from_solver *to_sim)
+int solve_milp_virtex_5(param_from_solver *to_sim)
 {
-    unsigned long status, i ,k, j, l;
+    unsigned long status, i ,k, j, l, s;
     //define variables
     try {
         GRBEnv env = GRBEnv();
@@ -128,14 +128,35 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 z[i][k] = x_coord;
 
                 for(j = 0; j < 2; j++) {
-                    GRBVarArray constrs(64);
+                    GRBVarArray constrs(200);
                     z[i][k][j] = constrs;
 
-                    for(l = 0; l < 64; l++)
+                    for(l = 0; l < 200; l++)
                         z[i][k][j][l] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
                 }
             }
         }
+
+
+        GRBVar4DArray seg(3);
+        for(i = 0; i < 3; i++) {
+            GRBVar3DArray each_slot(num_slots);
+            seg[i] = each_slot;
+
+            for(k = 0; k < num_slots; k++)  {
+                GRBVar2DArray x_coord(2);
+                seg[i][k] = x_coord;
+
+                for(j = 0; j < 2; j++) {
+                    GRBVarArray constrs(200);
+                    seg[i][k][j] = constrs;
+
+                    for(l = 0; l < 200; l++)
+                        seg[i][k][j][l] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                }
+            }
+        }
+
 
        /**********************************************************************
          name: clb
@@ -224,6 +245,25 @@ int solve_milp_virtex(param_from_solver *to_sim)
          name: tau
          type: integer
          func: tau[i][k] is used to linearize the function which is used to compute
+        GRBVar4DArray z(3);
+        for(i = 0; i < 3; i++) {
+            GRBVar3DArray each_slot(num_slots);
+            z[i] = each_slot;
+
+            for(k = 0; k < num_slots; k++)  {
+                GRBVar2DArray x_coord(2);
+                z[i][k] = x_coord;
+
+                for(j = 0; j < 2; j++) {
+                    GRBVarArray constrs(200);
+                    z[i][k][j] = constrs;
+
+                    for(l = 0; l < 200; l++)
+                        z[i][k][j][l] = model.addVar(0.0, 1.0, 0.0, GRB_BINARY);
+                }
+            }
+        }
+
                the number of available resources. The first index is used to
                denote the type of resource and the second is used to denote
                the slot
@@ -606,15 +646,15 @@ int solve_milp_virtex(param_from_solver *to_sim)
         ******************************************************************/
         for(i = 0; i < num_slots; i++) {
             GRBLinExpr exp_y;
-             for(j = 0; j < num_clk_regs; j++) {
+//            for(j = 0; j < num_clk_regs; j++) {
                 //for(k = 0; k < num_rows; k++) {
-                    model.addConstr(y[i] <= (H - beta[i][j] * (H - j)), "99");
-    //            }
+//                   model.addConstr(y[i] <= (H - beta[i][j] * (H - j)), "99");
+//                }
                 model.addConstr(y[i] + h[i] <= H, "100");
-             }
+   //          }
         }
 
-        for(i = 0; i < num_slots; i++) { 
+        for(i = 0; i < num_slots; i++) {
             l = 0;
             model.addConstr(BIG_M * kappa[i][l++] >= 1 - y[i],  "1049");
             model.addConstr(BIG_M * kappa[i][l++] >= y[i] - 0,  "1050");
@@ -632,7 +672,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
         }
 
         for(i = 0; i < num_slots; i++) {
-            l = 0;    
+            l = 0;
             model.addConstr(beta[i][0] >= 1 - (1- kappa[i][l++]) * BIG_M, "1052");
 
             model.addConstr(beta[i][1] >= 1 -  BIG_M * (1- kappa[i][l++])-
@@ -669,13 +709,13 @@ int solve_milp_virtex(param_from_solver *to_sim)
         Constr 2.0: The clb on the FPGA is described using the following
                     piecewise function.
                     x       0  <= x < 5
-                    x-1     5  <= x < 8
-                    x-2     8  <= x < 13
-                    x-3     13 <= x < 16
-                    x-4     16 <= x < 21
-                    x-5     21 <= x < 24
-                    x-6     24 <= x < 33
-                    x-7     33 <= x < 36
+                    x-1     5  <= x < 8 16
+                    x-2     8  <= x < 13 19
+                    x-3     13 <= x < 16 28
+                    x-4     16 <= x < 21 41
+                    x-5     21 <= x < 24 52
+                    x-6     24 <= x < 33 57
+                    x-7     33 <= x < 36 62
                     x-8     36 <= x < 54
                     x-9     54 <= x < 56
                     x-10    56 <= x < 60
@@ -695,19 +735,21 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 l = 0;
                 model.addConstr(BIG_M * z[0][i][k][l++]  >= 5 - x[i][k], "1");
                 model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 4, "2");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= 8 - x[i][k], "3");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 7, "4");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= 13 - x[i][k], "5");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 12,  "6");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= 16 - x[i][k], "7");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 15, "8");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= 21 - x[i][k], "9");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 20, "10");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= 24 - x[i][k], "11");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 23, "12");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= 33 - x[i][k], "13");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 32, "14");
-                model.addConstr(BIG_M * z[0][i][k][l++]  >= 36 - x[i][k], "711");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= 16 - x[i][k], "3");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 15, "4");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= 19 - x[i][k], "5");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 18,  "6");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= 28 - x[i][k], "7");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 27, "8");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= 41 - x[i][k], "9");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 40, "10");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= 52 - x[i][k], "11");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 51, "12");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= 57 - x[i][k], "13");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 56, "14");
+                model.addConstr(BIG_M * z[0][i][k][l++]  >= 63 - x[i][k], "711");
+
+/*
                 model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 35, "811");
                 model.addConstr(BIG_M * z[0][i][k][l++]  >= 54 - x[i][k], "911");
                 model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 53, "1220");
@@ -726,14 +768,16 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 model.addConstr(BIG_M * z[0][i][k][l++]  >= 96 - x[i][k], "9");
                 model.addConstr(BIG_M * z[0][i][k][l++]  >= x[i][k] - 95, "10");
                 model.addConstr(BIG_M * z[0][i][k][l++]  >= W + 1 - x[i][k],  "15");
-            }
+  */
+          }
         }
-
 
         //constr for clbs
         for(i = 0; i < num_slots; i++) {
             for(k = 0; k < 2; k++) {
                 l = 0;
+                s = 0;
+/*
                 model.addConstr(clb[i][k] >= x[i][k] - BIG_M * (1 - z[0][i][k][l++]), "8");
 
                 model.addConstr(clb[i][k] >= (x[i][k] - 1)  - BIG_M * (1 - z[0][i][k][l++]) -
@@ -756,6 +800,49 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(clb[i][k] >= (x[i][k] - 7)  - BIG_M * (1 - z[0][i][k][l++]) -
                                                            BIG_M * (1 - z[0][i][k][l++]), "15");
+
+                l = 0;
+*/
+                model.addConstr(seg[0][i][k][s++] >= 1 - BIG_M * (1 - z[0][i][k][l++]), "10000");
+                model.addConstr(seg[0][i][k][s++] >= 1 - BIG_M * (1 - z[0][i][k][l++]) -
+                                                         BIG_M * (1 - z[0][i][k][l++]), "10001");
+                model.addConstr(seg[0][i][k][s++] >= 1 - BIG_M * (1 - z[0][i][k][l++]) -
+                                                         BIG_M * (1 - z[0][i][k][l++]), "10002");
+                model.addConstr(seg[0][i][k][s++] >= 1 - BIG_M * (1 - z[0][i][k][l++]) -
+                                                         BIG_M * (1 - z[0][i][k][l++]), "10003");
+                model.addConstr(seg[0][i][k][s++] >= 1 - BIG_M * (1 - z[0][i][k][l++]) -
+                                                         BIG_M * (1 - z[0][i][k][l++]), "10004");
+                model.addConstr(seg[0][i][k][s++] >= 1 - BIG_M * (1 - z[0][i][k][l++]) -
+                                                         BIG_M * (1 - z[0][i][k][l++]), "10005");
+                model.addConstr(seg[0][i][k][s++] >= 1 - BIG_M * (1 - z[0][i][k][l++]) -
+                                                         BIG_M * (1 - z[0][i][k][l++]), "10006");
+                model.addConstr(seg[0][i][k][s++] >= 1 - BIG_M * (1 - z[0][i][k][l++]) -
+                                                         BIG_M * (1 - z[0][i][k][l++]), "10007");
+
+                s = 0;
+
+
+                model.addConstr(clb[i][k] >=   (0 * seg[0][i][k][s] + (x[i][k] - 0 * seg[0][i][k][s++]) * 1)   +
+                                               (4 * seg[0][i][k][s] + (x[i][k] - 4 * seg[0][i][k][s++]) * 0)   +
+                                               (4 * seg[0][i][k][s] + (x[i][k] - 5 * seg[0][i][k][s++]) * 1)   +
+                                               (14 * seg[0][i][k][s] + (x[i][k] - 15 * seg[0][i][k][s++]) * 0)  +
+                                               (14 * seg[0][i][k][s] + (x[i][k] - 16 * seg[0][i][k][s++]) * 1)   +
+                                               (16 * seg[0][i][k][s] + (x[i][k] - 18 * seg[0][i][k][s++]) * 0)  +
+                                               (16 * seg[0][i][k][s] + (x[i][k] - 19 * seg[0][i][k][s++]) * 1)   +
+
+                                               (24 * seg[0][i][k][s] + (x[i][k] - 27 * seg[0][i][k][s++]) * 0)  +
+                                               (24 * seg[0][i][k][s] + (x[i][k] - 28 * seg[0][i][k][s++]) * 1)   +
+                                               (36 * seg[0][i][k][s] + (x[i][k] - 40 * seg[0][i][k][s++]) * 0)  +
+                                               (36 * seg[0][i][k][s] + (x[i][k] - 41 * seg[0][i][k][s++]) * 1)   +
+                                               (46 * seg[0][i][k][s] + (x[i][k] - 51 * seg[0][i][k][s++]) * 0)  +
+                                               (46 * seg[0][i][k][s] + (x[i][k] - 51 * seg[0][i][k][s++]) * 1)  +
+                                               (50 * seg[0][i][k][s] + (x[i][k] - 56 * seg[0][i][k][s++]) * 0)   +
+                                               (50 * seg[0][i][k][s] + (x[i][k] - 57 * seg[0][i][k][s++]) * 1)  +
+                                               (54 * seg[0][i][k][s] + (x[i][k] - 61 * seg[0][i][k][s++]) * 0)   +
+                                               (54 * seg[0][i][k][s] + (x[i][k] - 62 * seg[0][i][k][s++]) * 1) , "1008");
+
+                        cout << "seg section" << endl;
+                /*
 
                 model.addConstr(clb[i][k] >= (x[i][k] - 8)  - BIG_M * (1 - z[0][i][k][l++]) -
                                                            BIG_M * (1 - z[0][i][k][l++]), "229");
@@ -785,8 +872,11 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 model.addConstr(clb[i][k] >= (x[i][k] - 16)  - BIG_M * (1 - z[0][i][k][l++]) -
                                                            BIG_M * (1 - z[0][i][k][l++]), "2213");
 
-            }
+         }
 
+           */
+
+            /*
             for( k = 0; k < 2; k++) {
                 l = 0;
                 model.addConstr(x[i][k] >= clb[i][k] - BIG_M * (1 - z[0][i][k][l++]), "16");
@@ -811,6 +901,8 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(x[i][k] - 7 >= (clb[i][k])  - BIG_M * (1 - z[0][i][k][l++]) -
                                                        BIG_M * (1 - z[0][i][k][l++]), "23");
+*/
+/*
 
                 model.addConstr(x[i][k] - 8 >= (clb[i][k])  - BIG_M * (1 - z[0][i][k][l++]) -
                                                        BIG_M * (1 - z[0][i][k][l++]), "17");
@@ -838,7 +930,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(x[i][k] - 16 >= (clb[i][k])  - BIG_M * (1 - z[0][i][k][l++]) -
                                                        BIG_M * (1 - z[0][i][k][l++]), "19");
-            }
+  */          }
         }
 
         /******************************************************************
@@ -847,15 +939,15 @@ int solve_milp_virtex(param_from_solver *to_sim)
                       the fpga fabric
                     0     0  <=  x  < 5
                     1     5  <=  x  < 16
-                    2     16 <=  x  < 21
-                    3     21 <=  x  < 36
-                    4     36 <=  x  < 57
-                    5     57 <=  x  < 74
+                    2     16 <=  x  < 21 41
+                    3     21 <=  x  < 36 52
+                    4     36 <=  x  < 57 62
+                    5     57 <=  x  < 74 63
                     6     74 <=  x  < 87
                     7     87 <=  x  < 93
                     8     93 <=  x < W
         ******************************************************************/
-//#ifdef bram
+#ifdef bram
             for(i =0; i < num_slots; i++) {
                 for(k = 0; k < 2; k++) {
                 l = 0;
@@ -863,19 +955,20 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 4, "33");
                 model.addConstr(BIG_M * z[1][i][k][l++]  >= 16 - x[i][k], "34");
                 model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 15, "35");
-                model.addConstr(BIG_M * z[1][i][k][l++]  >= 36 - x[i][k], "36");
-                model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 35, "37");
+                model.addConstr(BIG_M * z[1][i][k][l++]  >= 41 - x[i][k], "36");
+                model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 40, "37");
+                model.addConstr(BIG_M * z[1][i][k][l++]  >= 52 - x[i][k], "32");
+                model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 51, "33");
+                model.addConstr(BIG_M * z[1][i][k][l++]  >= 62 - x[i][k], "34");
+                model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 61, "35");
+                model.addConstr(BIG_M * z[1][i][k][l++]  >= 63 - x[i][k], "36");
 
-                model.addConstr(BIG_M * z[1][i][k][l++]  >= 57 - x[i][k], "32");
-                model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 56, "33");
-                model.addConstr(BIG_M * z[1][i][k][l++]  >= 74 - x[i][k], "34");
-                model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 73, "35");
-                model.addConstr(BIG_M * z[1][i][k][l++]  >= 87 - x[i][k], "36");
+                /*
                 model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 86, "37");
                 model.addConstr(BIG_M * z[1][i][k][l++]  >= 93 - x[i][k], "36");
                 model.addConstr(BIG_M * z[1][i][k][l++]  >= x[i][k] - 92, "37");
                 model.addConstr(BIG_M * z[1][i][k][l++]  >= W + 1 - x[i][k], "38");
-            }
+            */}
         }
 
         for(i = 0; i < num_slots; i++) {
@@ -898,6 +991,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(bram[i][k] >= 5  - BIG_M * (1 - z[1][i][k][l++]) -
                                                            BIG_M * (1 - z[1][i][k][l++]), "41");
+/*
 
                 model.addConstr(bram[i][k] >= 6  - BIG_M * (1 - z[1][i][k][l++]) -
                                                            BIG_M * (1 - z[1][i][k][l++]), "42");
@@ -908,8 +1002,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(bram[i][k] >= 8  - BIG_M * (1 - z[1][i][k][l++]) -
                                                            BIG_M * (1 - z[1][i][k][l++]), "41");
-
-            }
+  */          }
 
             for( k = 0; k < 2; k++) {
                 l = 0;
@@ -929,7 +1022,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(5 >= (bram[i][k])  - BIG_M * (1 - z[1][i][k][l++]) -
                                                        BIG_M * (1 - z[1][i][k][l++]), "45");
-
+/*
                 model.addConstr(6 >= (bram[i][k])  - BIG_M * (1 - z[1][i][k][l++]) -
                                                        BIG_M * (1 - z[1][i][k][l++]), "46");
 
@@ -938,15 +1031,15 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(8 >= (bram[i][k])  - BIG_M * (1 - z[1][i][k][l++]) -
                                                        BIG_M * (1 - z[1][i][k][l++]), "45");
-            }
+  */          }
         }
-//#endif
+#endif
 
 
-//#ifdef dspp
+#ifdef dspp
         /******************************************************************
         Constr 2.2: Same thing is done for the dsp on the FPGA
-                    0     0  <=  x  < 8
+                    0     0  <=  x  < 8 19
                     1     8  <=  x  < 13
                     2     15 <=  x  < 24
                     3     24 <=  x  < 33
@@ -958,9 +1051,11 @@ int solve_milp_virtex(param_from_solver *to_sim)
         for(i =0; i < num_slots; i++) {
             for(k = 0; k < 2; k++) {
                 l = 0;
-                model.addConstr(BIG_M * z[2][i][k][l++]  >= 8 - x[i][k], "47");
-                model.addConstr(BIG_M * z[2][i][k][l++]  >= x[i][k] - 7, "48");
-                model.addConstr(BIG_M * z[2][i][k][l++]  >= 13 - x[i][k], "49");
+                model.addConstr(BIG_M * z[2][i][k][l++]  >= 19 - x[i][k], "47");
+                model.addConstr(BIG_M * z[2][i][k][l++]  >= x[i][k] - 18, "48");
+                model.addConstr(BIG_M * z[2][i][k][l++]  >= 63 - x[i][k], "49");
+
+/*
                 model.addConstr(BIG_M * z[2][i][k][l++]  >= x[i][k] - 12, "50");
 
                 model.addConstr(BIG_M * z[2][i][k][l++]  >= 24 - x[i][k], "47");
@@ -976,7 +1071,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 model.addConstr(BIG_M * z[2][i][k][l++]  >= 96 - x[i][k], "47");
                 model.addConstr(BIG_M * z[2][i][k][l++]  >= x[i][k] - 95, "48");
                 model.addConstr(BIG_M * z[2][i][k][l++]  >= W + 1 - x[i][k], "51");
-           }
+  */         }
         }
 
         for(i = 0; i < num_slots; i++) {
@@ -987,7 +1082,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 model.addConstr(dsp[i][k] >= 1  - BIG_M * (1 - z[2][i][k][l++]) -
                                                   BIG_M * (1 - z[2][i][k][l++]), "53");
 
-                model.addConstr(dsp[i][k] >= 2  - BIG_M * (1 - z[2][i][k][l++]) -
+/*                model.addConstr(dsp[i][k] >= 2  - BIG_M * (1 - z[2][i][k][l++]) -
                                                   BIG_M * (1 - z[2][i][k][l++]), "54");
 
                 model.addConstr(dsp[i][k] >= 3  - BIG_M * (1 - z[2][i][k][l++]) -
@@ -1004,7 +1099,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(dsp[i][k] >= 7  - BIG_M * (1 - z[2][i][k][l++]) -
                                                   BIG_M * (1 - z[2][i][k][l++]), "53");
-            }
+  */          }
 
             for( k = 0; k < 2; k++) {
                 l = 0;
@@ -1012,7 +1107,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(1 >= (dsp[i][k])  - BIG_M * (1 - z[2][i][k][l++]) -
                                                     BIG_M * (1 - z[2][i][k][l++]), "56");
-
+/*
                 model.addConstr(2 >= (dsp[i][k])  - BIG_M * (1 - z[2][i][k][l++]) -
                                                     BIG_M * (1 - z[2][i][k][l++]), "57");
 
@@ -1032,9 +1127,9 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                 model.addConstr(7 >= (dsp[i][k])  - BIG_M * (1 - z[2][i][k][l++]) -
                                                     BIG_M * (1 - z[2][i][k][l++]), "56");
-            }
+  */          }
         }
-//#endif
+#endif
 
       //constr for res
       /*********************************************************************
@@ -1067,16 +1162,16 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 exp_bram += tau[1][i][j];
             }
             //}
-            model.addConstr(50 * exp_res >= clb_req_v5[i],"68");
-            model.addConstr(wasted[i][0] == (50 * exp_res) - clb_req_v5[i] - 50,"168"); //wasted clbs
+            model.addConstr(20 * exp_res >= clb_req[i],"68");
+            model.addConstr(wasted[i][0] == (20 * exp_res) - clb_req[i] - 20,"168"); //wasted clbs
 //#ifdef bram
-            model.addConstr(10 * exp_bram >= bram_req_v5[i],"69");
-            model.addConstr(wasted[i][1] == 10 * exp_bram - bram_req_v5[i]- 10,"169");
+            //model.addConstr(4 * exp_bram >= bram_req[i],"69");
+            //model.addConstr(wasted[i][1] == 4 * exp_bram - bram_req[i]- 4,"169");
 //#endif
 
 //#ifdef dspp
-            model.addConstr(20 * exp_dsp >= dsp_req_v5[i],"70");
-            model.addConstr(wasted[i][2] == (20 * exp_dsp) - dsp_req_v5[i] - 20, "170");
+            //model.addConstr(8 * exp_dsp >= dsp_req[i],"70");
+            //model.addConstr(wasted[i][2] == (8 * exp_dsp) - dsp_req[i] - 8, "170");
 //#endif
         }
 
@@ -1138,12 +1233,12 @@ int solve_milp_virtex(param_from_solver *to_sim)
             for(k = 0; k < num_slots; k++) {
 //              model.addConstr(BIG_M * mu[i][k]  >= x[k][0] - fs[i].x, "74");
 
-                model.addConstr(BIG_M * mu[i][k]     >= x[k][0] - fs_v5[i].x, "74");
-                model.addConstr(BIG_M * nu[i][k]     >= y[k] * num_rows   - fs_v5[i].y, "75");
-                model.addConstr(BIG_M * fbdn_1[i][k] >= fs_v5[i].x + fs_v5[i].w - x[k][0] + 1, "76");
-                model.addConstr(BIG_M * fbdn_2[i][k] >= x[k][1]    - fs_v5[i].x + 1, "77");
-                model.addConstr(BIG_M * fbdn_3[i][k] >= fs_v5[i].y + fs_v5[i].h - (y[k] * num_rows) + 1, "78");
-                model.addConstr(BIG_M * fbdn_4[i][k] >= (y[k] + h[k]) * num_rows - fs_v5[i].y + 1, "79");
+                model.addConstr(BIG_M * mu[i][k]     >= x[k][0] - fs[i].x, "74");
+                model.addConstr(BIG_M * nu[i][k]     >= y[k] * num_rows   - fs[i].y, "75");
+                model.addConstr(BIG_M * fbdn_1[i][k] >= fs[i].x + fs[i].w - x[k][0] + 1, "76");
+                model.addConstr(BIG_M * fbdn_2[i][k] >= x[k][1]    - fs[i].x + 1, "77");
+                model.addConstr(BIG_M * fbdn_3[i][k] >= fs[i].y + fs[i].h - (y[k] * num_rows) + 1, "78");
+                model.addConstr(BIG_M * fbdn_4[i][k] >= (y[k] + h[k]) * num_rows - fs[i].y + 1, "79");
 
                 //model.addConstr(BIG_M * mu[i][k]     >= x[k][0] - fs[i].x, "74");
                 //model.addConstr(BIG_M * nu[i][k]     >= y[k] * num_rows   - fs[i].y, "75");
@@ -1219,7 +1314,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
             obj_wasted_dsp  += wasted[i][2];
         }
 
-         model.setObjective((obj_x + obj_y), GRB_MINIMIZE);
+         model.setObjective((obj_x + obj_y) / 1000, GRB_MINIMIZE);
          //model.setObjective(0.5 * obj_wasted_clb,  GRB_MINIMIZE);
         //model.setObjective(obj_wasted_bram, GRB_MINIMIZE);
        // model.setObjective(obj_wasted_dsp,  GRB_MINIMIZE);
@@ -1233,9 +1328,9 @@ int solve_milp_virtex(param_from_solver *to_sim)
         model.set(GRB_IntParam_Threads, 8);
         model.set(GRB_DoubleParam_TimeLimit, 1800);
         model.optimize();
-        wasted_clb = 0;
-        wasted_bram = 0;
-        wasted_dsp = 0;
+        wasted_clb_v5 = 0;
+        wasted_bram_v5 = 0;
+        wasted_dsp_v5 = 0;
         unsigned long w_x = 0, w_y = 0;
 
         status = model.get(GRB_IntAttr_Status);
@@ -1259,22 +1354,22 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
                     <<"\t" << clb[i][0].get(GRB_DoubleAttr_X) <<"\t" <<
                     clb[i][1].get(GRB_DoubleAttr_X) << "\t" << (clb[i][1].get(GRB_DoubleAttr_X) -
-                     clb[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 50<< "\t" << clb_req_v5[i]
+                     clb[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 20<< "\t" << clb_req[i]
 
                     <<"\t" << bram[i][0].get(GRB_DoubleAttr_X) <<"\t" <<
                     bram[i][1].get(GRB_DoubleAttr_X) << "\t" << (bram[i][1].get(GRB_DoubleAttr_X) -
-                    bram[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 10<< "\t" << bram_req_v5[i]
+                    bram[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 4<< "\t" << bram_req[i]
 
                     << "\t" << dsp[i][0].get(GRB_DoubleAttr_X) << "\t" <<
                     dsp[i][1].get(GRB_DoubleAttr_X) << "\t" << (dsp[i][1].get(GRB_DoubleAttr_X) -
-                            dsp[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 20 << "\t" << dsp_req_v5[i] <<endl;
+                            dsp[i][0].get(GRB_DoubleAttr_X)) * h[i].get(GRB_DoubleAttr_X) * 8 << "\t" << dsp_req[i] <<endl;
 
                     cout <<endl;
 
                     (*to_sim->x)[i] = (int) x[i][0].get(GRB_DoubleAttr_X);
-                    (*to_sim->y)[i] = (int) y[i].get(GRB_DoubleAttr_X) * num_rows;
+                    (*to_sim->y)[i] = (int) y[i].get(GRB_DoubleAttr_X) * 4;
                     (*to_sim->w)[i] = (int) w[i].get(GRB_DoubleAttr_X);
-                    (*to_sim->h)[i] = (int) h[i].get(GRB_DoubleAttr_X) * 10;
+                    (*to_sim->h)[i] = (int) h[i].get(GRB_DoubleAttr_X) * 4;
 /*
                     for(k=0; k < 2; k++) {
                         for(l = 0; l < 10; l++)
@@ -1325,9 +1420,9 @@ int solve_milp_virtex(param_from_solver *to_sim)
             }
 
             for (i = 0; i < num_slots; i++) {
-                wasted_clb  +=  wasted[i][0].get(GRB_DoubleAttr_X);
-                wasted_bram +=  wasted[i][1].get(GRB_DoubleAttr_X);
-                wasted_dsp  +=  wasted[i][2].get(GRB_DoubleAttr_X);
+                wasted_clb_v5  +=  wasted[i][0].get(GRB_DoubleAttr_X);
+                wasted_bram_v5 +=  wasted[i][1].get(GRB_DoubleAttr_X);
+                wasted_dsp_v5  +=  wasted[i][2].get(GRB_DoubleAttr_X);
 
                 cout << "wasted clb " << wasted[i][0].get(GRB_DoubleAttr_X) << " wasted bram " << wasted[i][1].get(GRB_DoubleAttr_X) <<
                        " wasted dsp " << wasted[i][2].get(GRB_DoubleAttr_X) <<endl;
@@ -1343,7 +1438,7 @@ int solve_milp_virtex(param_from_solver *to_sim)
                 }
             }
 
-                cout << "total wasted clb " <<wasted_clb << " total wasted bram " <<wasted_bram << " total wastd dsp " << wasted_dsp <<endl;
+                cout << "total wasted clb " <<wasted_clb_v5 << " total wasted bram " <<wasted_bram_v5 << " total wastd dsp " << wasted_dsp_v5 <<endl;
                 cout << " total wire length " << w_x << "  " << w_y << "  " <<  w_y + w_x << endl;
 
         }
@@ -1380,31 +1475,31 @@ int solve_milp_virtex(param_from_solver *to_sim)
 
 }
 
-int virtex_start_optimizer(param_to_solver *param, param_from_solver *to_sim)
+int virtex_start_optimizer_v5(param_to_solver *param, param_from_solver *to_sim)
 {
     num_slots = param->num_slots;
     num_forbidden_slots = param->forbidden_slots;
     num_rows = param->num_rows;
-    H = 7;
+    H = 8;
     W = param->width;
     //num_forbidden_slots = param->forbidden_slots;
 
     unsigned long i;
 
     for(i = 0; i < num_slots; i++) {
-        clb_req_v5[i]  = (*param->clb)[i];
-        bram_req_v5[i] = (*param->bram)[i];
-        dsp_req_v5[i]  = (*param->dsp)[i];
+        clb_req[i]  = (*param->clb)[i];
+        bram_req[i] = (*param->bram)[i];
+        dsp_req[i]  = (*param->dsp)[i];
         //cout << "clb " << clb_req[i] << " bram " << bram_req[i] << "dsp " << dsp_req[i] << endl;
     }
 
     for(i = 0; i < num_forbidden_slots; i++) {
-        fs_v5[i] = (*param->fbdn_slot)[i];
-        cout <<"forbidden " << num_forbidden_slots << " " << fs_v5[i].x << " " <<fs_v5[i].y << " " << fs_v5[i].h << " " << fs_v5[i].w <<endl;
+        fs[i] = (*param->fbdn_slot)[i];
+        cout <<"forbidden " << num_forbidden_slots << " " << fs[i].x << " " << fs[i].y << " " << fs[i].h << " " << fs[i].w <<endl;
     }
     cout << "finished copying" << endl;
 
-    status = solve_milp_virtex(to_sim);
+    status = solve_milp_virtex_5(to_sim);
 
 return 0;
 }

@@ -19,7 +19,8 @@ class fp;
 
 enum fpga_type {
     ZYNQ,
-    VIRTEX
+    VIRTEX,
+    VIRTEX_5
 };
 
 typedef std::vector<pos> position_vec;
@@ -47,13 +48,14 @@ public:
 
     fpga *zynq;
     virtex *virt;
+    virtex_5 *virt_5;
     QString str;
     param_to_solver param;
 
     unsigned long int num_slots = 0;
     bool paint_rect = false;
     enum fpga_type type = ZYNQ;
-    const int virtex_scale = 3;
+    unsigned long virtex_scale = 3;
     float utilization;
 
     std::vector<unsigned long> clb_vector =  std::vector<unsigned long>(MAX_SLOTS);
@@ -74,6 +76,7 @@ public:
 
     position_vec forbidden_region_zynq = position_vec(MAX_SLOTS);
     position_vec forbidden_region_virtex = position_vec(MAX_SLOTS);
+    position_vec forbidden_region_virtex_5 = position_vec(MAX_SLOTS);
     std::vector<unsigned long> get_units_per_task(unsigned long n,
                                                   unsigned long n_units,
                                                   unsigned long n_min,
@@ -82,8 +85,8 @@ public:
     param_from_solver from_solver = {&eng_x, &eng_y,
                                    &eng_w, &eng_h};
 
-    int clb_width = 10;
-    int clb_height = 8, bram_height = 40, dsp_height = 20;
+    unsigned long clb_width = 10;
+    unsigned long clb_height = 8, bram_height = 40, dsp_height = 20;
     unsigned long total_height;
 
     void init_fpga(enum fpga_type);
@@ -91,6 +94,7 @@ public:
     void plot_rects(param_from_solver *);
     void paint_zynq();
     void paint_virtex();
+    void paint_virtex_5();
     bool is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, unsigned long min, int type);
 
 private:

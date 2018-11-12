@@ -28,7 +28,8 @@ SOURCES += \
     fpga.cpp \
     csv_data_manipulator.cpp \
     ../../engine/src/model_virtex.cpp \
-    ../../engine/src/model_zynq.cpp
+    ../../engine/src/model_zynq.cpp \
+    ../../engine/src/model_virtex_5.cpp
 
 LIBS += \
        -lgurobi_g++5.2\

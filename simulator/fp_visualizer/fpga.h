@@ -10,39 +10,78 @@
 #define ZYNQ_CLB_TOT 2200
 #define ZYNQ_BRAM_TOT 60
 #define ZYNQ_DSP_TOT 80
-
 #define ZYNQ_CLB_MIN 10
 #define ZYNQ_BRAM_MIN 0
 #define ZYNQ_DSP_MIN 0
-
 #define ZYNQ_FORBIDDEN 4
 #define ZYNQ_NUM_ROWS 10
 #define ZYNQ_WIDTH 29
-
 #define ZYNQ_CLK_REG 4
 #define ZYNQ_CLK00_BRAM 1
 #define ZYNQ_CLK01_BRAM 1
 #define ZYNQ_CLK10_BRAM 2
 #define ZYNQ_CLK11_BRAM 2
-
 #define ZYNQ_CLK00_DSP 1
 #define ZYNQ_CLK01_DSP 1
 #define ZYNQ_CLK10_DSP 1 
 #define ZYNQ_CLK11_DSP 1
 
-//parameters for virtex
-#define VIRTEX_CLB_TOT 27325
-#define VIRTEX_BRAM_TOT 545
-#define VIRTEX_DSP_TOT 900
 
+//parameters for virtex_5
+#define VIRTEX_5_CLB_TOT 8140
+#define VIRTEX_5_BRAM_TOT 160
+#define VIRTEX_5_DSP_TOT 64
+#define VIRTEX_5_CLB_MIN 10
+#define VIRTEX_5_BRAM_MIN 0
+#define VIRTEX_5_DSP_MIN 0
+#define VIRTEX_5_CLK_REG 16
+#define VIRTEX_5_FORBIDDEN 2
+#define VIRTEX_5_NUM_ROWS 4
+#define VIRTEX_5_WIDTH 62
+#define VIRTEX_5_CLK00_BRAM 2
+#define VIRTEX_5_CLK01_BRAM 2
+#define VIRTEX_5_CLK02_BRAM 2
+#define VIRTEX_5_CLK03_BRAM 2
+#define VIRTEX_5_CLK04_BRAM 2
+#define VIRTEX_5_CLK05_BRAM 2
+#define VIRTEX_5_CLK06_BRAM 2
+#define VIRTEX_5_CLK07_BRAM 2
+#define VIRTEX_5_CLK10_BRAM 3
+#define VIRTEX_5_CLK11_BRAM 3
+#define VIRTEX_5_CLK12_BRAM 3
+#define VIRTEX_5_CLK13_BRAM 3
+#define VIRTEX_5_CLK14_BRAM 3
+#define VIRTEX_5_CLK15_BRAM 3
+#define VIRTEX_5_CLK16_BRAM 3
+#define VIRTEX_5_CLK17_BRAM 3
+#define VIRTEX_5_CLK00_DSP 1
+#define VIRTEX_5_CLK01_DSP 1
+#define VIRTEX_5_CLK02_DSP 1
+#define VIRTEX_5_CLK03_DSP 1
+#define VIRTEX_5_CLK04_DSP 1
+#define VIRTEX_5_CLK05_DSP 1
+#define VIRTEX_5_CLK06_DSP 1
+#define VIRTEX_5_CLK07_DSP 1
+#define VIRTEX_5_CLK10_DSP 0
+#define VIRTEX_5_CLK11_DSP 0
+#define VIRTEX_5_CLK12_DSP 0
+#define VIRTEX_5_CLK13_DSP 0
+#define VIRTEX_5_CLK14_DSP 0
+#define VIRTEX_5_CLK15_DSP 0
+#define VIRTEX_5_CLK16_DSP 0
+#define VIRTEX_5_CLK17_DSP 0
+
+
+//parameters for virtex_7
+#define VIRTEX_CLB_TOT 21487
+#define VIRTEX_BRAM_TOT 500
+#define VIRTEX_DSP_TOT 900
 #define VIRTEX_CLB_MIN 10
 #define VIRTEX_BRAM_MIN 0
 #define VIRTEX_DSP_MIN 0
-
-#define VIRTEX_FORBIDDEN 7
+#define VIRTEX_FORBIDDEN 4
 #define VIRTEX_NUM_ROWS 10
 #define VIRTEX_WIDTH 103
-
 #define VIRTEX_CLK_REG 14
 //bram descritpion on virtex
 #define VIRTEX_CLK00_BRAM 4
@@ -59,7 +98,6 @@
 #define VIRTEX_CLK14_BRAM 5
 #define VIRTEX_CLK15_BRAM 5
 #define VIRTEX_CLK16_BRAM 5
-
 #define VIRTEX_CLK00_DSP 4
 #define VIRTEX_CLK01_DSP 4
 #define VIRTEX_CLK02_DSP 4
@@ -153,7 +191,7 @@ public:
 class virtex
 {
 public:
-    int num_clk_reg = VIRTEX_CLK_REG;
+    unsigned long num_clk_reg = VIRTEX_CLK_REG;
     fpga_clk_reg clk_reg[VIRTEX_CLK_REG];
     pos clk_reg_pos [VIRTEX_CLK_REG]= {{0,  300, 54, 50},
                                        {0,  250, 54, 50},
@@ -192,19 +230,67 @@ public:
                                          {15, 0, 1, ZYNQ_NUM_ROWS}};
 
     int forbidden_regs[VIRTEX_CLK_REG] = {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 0, 1, 1};
-    pos forbidden_pos[VIRTEX_FORBIDDEN] = {{0,   60,  18, 10},
-                                           {0,   50,  18, 10},
-                                           {55,  0,   1,  70},
-                                           {104, 0,   5,  40},
-                                           {74,  50,  8,  10},
-                                           {74,  60,  8,  10},
-                                           {89,  30,  4,  10}/*,
-                                           {104, 0,   5,  40},
-                                           {104, 200, 5,  10},
-                                           {104, 250, 5,  10},
-                                           {104, 300, 5,  10}*/};
+    pos forbidden_pos[VIRTEX_FORBIDDEN] = {{0,   50,  18, 20},
+                                           //{55,  0,   1,  70},
+                                           {74,  50,  8,  20},
+                                           {89,  30,  4,  10},
+                                           {104, 0,   5,  40}};
 
     void initialize_clk_reg();
     virtex();
+};
+
+
+class virtex_5
+{
+public:
+    int num_clk_reg = VIRTEX_5_CLK_REG;
+    fpga_clk_reg clk_reg[VIRTEX_5_CLK_REG];
+    pos clk_reg_pos [VIRTEX_5_CLK_REG] ={{0,  140, 27, 20},
+                                         {0,  120, 27, 20},
+                                         {0,  100, 27, 20},
+                                         {0,  80, 27, 20},
+                                         {0,  60, 27, 20},
+                                         {0,  40, 27, 20},
+                                         {0,  20,  27, 20},
+                                         {0,  0,  27, 20},
+                                         {28, 140, 34, 20},
+                                         {28, 120, 34, 20},
+                                         {28, 100, 34, 20},
+                                         {28, 80, 34, 20},
+                                         {28, 60, 34, 20},
+                                         {28, 40, 34, 20},
+                                         {28, 20, 34, 20},
+                                         {28, 0, 34, 20}};
+
+
+    int clb_per_col  = 20;
+    int bram_per_col = 4;
+    int dsp_per_col  = 8;
+    unsigned long num_rows = VIRTEX_5_NUM_ROWS;
+    unsigned long width = VIRTEX_5_WIDTH;
+
+    int bram_in_reg[VIRTEX_5_CLK_REG] = {2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3};
+
+    int bram_pos[VIRTEX_5_CLK_REG][5] = {{4, 15}, {4, 15}, {4, 15}, {4, 15}, {4, 15}, {4, 15}, {4, 15}, {4, 15},
+                                         {40, 51, 62}, {40, 51, 62}, {40, 51, 62}, {40, 51, 62},
+                                         {40, 51, 62}, {40, 51, 62}, {40, 51, 62}, {40, 51, 62}};
+
+    int dsp_in_reg[VIRTEX_5_CLK_REG] = {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    int dsp_pos[VIRTEX_5_CLK_REG][5] = {{18}, {18}, {18}, {18},{18} ,{18}, {18}, {18},
+                                        };
+
+    unsigned long num_forbidden_slots = VIRTEX_5_FORBIDDEN;
+    pos fbdn_pos[VIRTEX_5_FORBIDDEN] =   {{10, 0, 1, ZYNQ_NUM_ROWS}};
+
+    int forbidden_regs[VIRTEX_5_CLK_REG] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
+    pos forbidden_pos[VIRTEX_5_FORBIDDEN] = {{56, 0,  1, 80},
+                                             {61, 20, 1, 30}};
+
+
+    void initialize_clk_reg();
+    virtex_5();
+
 };
 #endif

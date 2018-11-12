@@ -1,0 +1,17 @@
+#-----------------------------------------------------------
+# Vivado v2016.4 (64-bit)
+# SW Build 1756540 on Mon Jan 23 19:11:19 MST 2017
+# IP Build 1755317 on Mon Jan 23 20:30:07 MST 2017
+# Start of session at: Wed Oct 24 10:48:35 2018
+# Process ID: 31092
+# Current directory: /usr/local/src/floorplan
+# Command line: vivado
+# Log file: /usr/local/src/floorplan/vivado.log
+# Journal file: /usr/local/src/floorplan/vivado.jou
+#-----------------------------------------------------------
+start_gui
+ls
+cd ../xilinx/home/holmes/xilinx/xilinx_16/verilog_projects/partial_reconf_16/prc_7s/
+ls
+source design.tc
+source design.tcl

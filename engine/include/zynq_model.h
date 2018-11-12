@@ -31,4 +31,5 @@ typedef  struct{
 
 int zynq_start_optimizer(param_to_solver *, param_from_solver *);
 int virtex_start_optimizer(param_to_solver *, param_from_solver *);
+int virtex_start_optimizer_v5(param_to_solver *, param_from_solver *);
 
