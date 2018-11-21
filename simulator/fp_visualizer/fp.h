@@ -24,6 +24,7 @@ enum fpga_type {
 };
 
 typedef std::vector<pos> position_vec;
+typedef std::vector<std::vector<unsigned long>> vec_2d;
 typedef struct{
     unsigned long clb;
     unsigned long bram;
@@ -52,17 +53,20 @@ public:
     QString str;
     param_to_solver param;
 
-    unsigned long int num_slots = 0;
+    unsigned long num_slots = 0;
     bool paint_rect = false;
     enum fpga_type type = ZYNQ;
     unsigned long virtex_scale = 3;
     float utilization;
+    unsigned long connections;
 
     std::vector<unsigned long> clb_vector =  std::vector<unsigned long>(MAX_SLOTS);
     std::vector<unsigned long> bram_vector = std::vector<unsigned long>(MAX_SLOTS);
     std::vector<unsigned long> dsp_vector =  std::vector<unsigned long>(MAX_SLOTS);
 
     std::vector<slot> sl_array = std::vector<slot>(MAX_SLOTS);
+
+    vec_2d connection_matrix = std::vector<std::vector<unsigned long>> (MAX_SLOTS, std::vector<unsigned long> (MAX_SLOTS, 0));
 
     std::vector<int> eng_x =  std::vector<int>(MAX_SLOTS);
     std::vector<int> eng_y = std::vector<int>(MAX_SLOTS);

@@ -506,6 +506,8 @@ void fp::start_pressed()
     param.clb  = &clb_vector;
     param.dsp  = &dsp_vector;
     param.num_slots = num_slots;
+    param.num_connected_slots = connections;
+    param.conn_vector = &connection_matrix;
 
     scene.clear();
     if(type == ZYNQ)
@@ -515,7 +517,6 @@ void fp::start_pressed()
 
     else if(type == VIRTEX_5)
        paint_virtex_5();
-
 
     if(type == VIRTEX) {
         param.forbidden_slots = virt->num_forbidden_slots;
@@ -579,7 +580,7 @@ void fp::plot_rects(param_from_solver *fs)
 
 void fp::set_browse()
 {
-    int row, col;
+    unsigned long row, col;
     int i , k;
     unsigned int ptr;
     string str;
@@ -590,7 +591,7 @@ void fp::set_browse()
     row = csv_data.rows();
     col = csv_data.columns();
 
-    qDebug() << " row " <<row << endl;
+    qDebug() << " row " <<row << "col " << col << endl;
     cout <<"in browse" << endl;
 
     if(row >= num_slots) {
@@ -607,7 +608,28 @@ void fp::set_browse()
             //cout << "clb " << clb_vector[ptr] << " bram " << bram_vector[ptr] << "dsp " << dsp_vector[ptr] << endl;
         }
     }
+
+    if(row > num_slots) {
+        for(i = num_slots + 1, ptr = 0; i < row; i++, ptr++){
+            for(k = 0; k < 3; k++) {
+                str = csv_data.get_value(i, k);
+                connection_matrix[ptr][k] = std::stoi(str);
+            }
+        }
+    }
+
+    connections = row - num_slots - 1;
+
+    for(i = num_slots + 1, ptr = 0, k = 0; i < row; i++, ptr++){
+        for(k = 0; k < 3; k++) {
+            cout << connection_matrix[ptr][k] << " " ;
+        }
+        cout << endl;
+    }
+
+    cout << "connectons " << connections <<endl;
 }
+
 
 void fp::set_util()
 {
@@ -616,6 +638,7 @@ void fp::set_util()
     unsigned long clb_min, bram_min, dsp_min;
     unsigned long clb_max, bram_max, dsp_max;
     unsigned long clb_mod, bram_mod, dsp_mod;
+
     QString str;
    // int temp_util = 0;
    // float util_temp = 0.0;
@@ -697,10 +720,10 @@ void fp::set_util()
     //bram_vec = fp::get_units_per_task(num_slots, bram_mod , bram_min, bram_max);
     //dsp_vec = fp::get_units_per_task(num_slots, dsp_mod, dsp_min, dsp_max);
 
-    for(i = 0; i < num_slots; i++) {
+ //   for(i = 0; i < num_slots; i++) {
           //cout<< "clb" << i << " " <<clb_vec[i] << " bram" << i << " " << bram_vec[i] << " dsp" << i << " " <<dsp_vec[i] <<endl;
-          cout<<clb_vec[i] << "," << bram_vec[i] << ", " <<dsp_vec[i] <<endl;
-    }
+//          cout<<clb_vec[i] << "," << bram_vec[i] << ", " <<dsp_vec[i] <<endl;
+ //   }
     if(num_slots != 0) {
         for(i = 0; i < num_slots; i++) {
             clb_vector[i] = clb_vec[i]; //sl_array[i].clb;
