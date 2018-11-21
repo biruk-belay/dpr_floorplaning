@@ -9,6 +9,8 @@ typedef struct {
 }pos;
 */
 typedef std::vector<unsigned long>    Vec;
+typedef std::vector<Vec> Vec2d;
+
 typedef std::vector<pos>    Vecpos;
 
 typedef struct {
@@ -16,9 +18,11 @@ typedef struct {
     unsigned long forbidden_slots;
     unsigned long num_rows;
     unsigned long width;
+    unsigned long num_connected_slots;
     Vec *clb;
     Vec *bram;
     Vec *dsp;
+    Vec2d* conn_vector;
     Vecpos *fbdn_slot;
 }param_to_solver;
 
