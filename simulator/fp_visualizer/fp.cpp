@@ -6,6 +6,8 @@
 #include <QFileDialog>
 #include <iostream>
 #include <string>
+#include <sys/time.h>
+#include <fstream>
 
 using namespace std;
 
@@ -37,6 +39,7 @@ fp::fp(QWidget *parent) :
     connect(ui->start_fp, SIGNAL(released()), this, SLOT(start_pressed()));
     connect(ui->browse_button, SIGNAL(released()), this, SLOT(set_browse()));
     connect(ui->set_util, SIGNAL(released()), this, SLOT(set_util()));
+    connect(ui->test_button, SIGNAL(released()), this, SLOT(start_automated_test()));
 
     for(i = 0; i < virt->num_forbidden_slots; i++)
         forbidden_region_virtex[i] = virt->forbidden_pos[i];
@@ -809,3 +812,84 @@ bool fp::is_compatible(std::vector<slot> ptr, unsigned long slot_num, int max, u
     }
 }
 */
+
+void fp::start_automated_test()
+{
+    string offset[] = {"reqs_5_70.csv", "reqs_5_75.csv", "reqs_5_80.csv", "reqs_5_85.csv",
+            "reqs_10_70.csv","reqs_10_75.csv","reqs_10_80.csv", "reqs_10_85.csv",
+            "reqs_15_70.csv","reqs_15_75.csv","reqs_15_80.csv", "reqs_15_85.csv",
+            "reqs_20_70.csv","reqs_20_75.csv","reqs_20_80.csv", "reqs_20_85.csv",
+            "reqs_25_70.csv","reqs_25_75.csv","reqs_25_80.csv", "reqs_25_85.csv"};
+
+    unsigned long num_slots[] = {5, 10, 15, 20, 25};
+    unsigned long util[] = {70, 75, 80, 85};
+
+    string base_addr = "/home/sholmes/Documents/test_suite/edited_testsuite/";
+    ofstream myfile;
+    int row, col;
+    int ptr, i, k, j;
+    int inc = 0;
+    int run = 0;
+    int num_slots_offset = 0;
+    string str;
+
+    for(j = 0; j < 10; j++, inc++) {
+        if(inc == 4) {
+            num_slots_offset += 1;
+            inc = 0;
+        }
+
+        for(run = 0; run < 3; run++) {
+            CSVData csv_data(base_addr + offset[j]);
+            row = csv_data.rows();
+            col = csv_data.columns();
+
+            qDebug() << " row " <<row << "col " << col << " off" << num_slots_offset << endl;
+
+            for(i = 0, ptr = 0, k = 0; i < num_slots[num_slots_offset] ; i++, ptr++) {
+                str = csv_data.get_value(i, k++);
+                clb_vector[ptr] = std::stoi(str);
+                str = csv_data.get_value(i, k++);
+                bram_vector[ptr] = std::stoi(str);
+                str = csv_data.get_value(i, k++);
+                dsp_vector[ptr] = std::stoi(str);
+                k = 0;
+            //qDebug() << "clb " << clb_vector[ptr] << " bram " << bram_vector[ptr] << "dsp " << dsp_vector[ptr] << endl;
+            }
+
+            if(row > num_slots[num_slots_offset]) {
+                for(i = num_slots[num_slots_offset] + 1, ptr = 0; i < row; i++, ptr++){
+                    for(k = 0; k < 3; k++) {
+                        str = csv_data.get_value(i, k);
+                        connection_matrix[ptr][k] = std::stoi(str);
+                    }
+                }
+            }
+
+            connections = row - num_slots[num_slots_offset] - 1;
+
+            for(i = num_slots[num_slots_offset] + 1, ptr = 0, k = 0; i < row; i++, ptr++){
+                for(k = 0; k < 3; k++) {
+                    cout << connection_matrix[ptr][k] << " " ;
+                }
+                cout << endl;
+            }
+
+            param.bram = &bram_vector;
+            param.clb  = &clb_vector;
+            param.dsp  = &dsp_vector;
+            param.num_slots = num_slots[num_slots_offset];
+            param.num_connected_slots = connections;
+            param.conn_vector = &connection_matrix;
+            param.forbidden_slots = virt_5->num_forbidden_slots;
+            param.num_rows = virt_5->num_rows;
+            param.width = virt_5->width;
+            param.fbdn_slot = &forbidden_region_virtex_5;
+            param.num_slot_offset = num_slots[num_slots_offset];
+            param.util = util[inc];
+            param.num_run = run;
+
+            virtex_start_optimizer_v5(&param, &from_solver);
+        }
+    }
+}

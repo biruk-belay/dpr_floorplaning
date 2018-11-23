@@ -59,6 +59,7 @@ public:
     unsigned long virtex_scale = 3;
     float utilization;
     unsigned long connections;
+    float wire_length;
 
     std::vector<unsigned long> clb_vector =  std::vector<unsigned long>(MAX_SLOTS);
     std::vector<unsigned long> bram_vector = std::vector<unsigned long>(MAX_SLOTS);
@@ -111,6 +112,7 @@ private slots:
     void set_browse();
     void fpga_pressed();
     void set_util();
+    void start_automated_test();
 };
 
 #endif // FP_H

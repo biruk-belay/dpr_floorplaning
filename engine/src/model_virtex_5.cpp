@@ -2,6 +2,7 @@
 #include <vector>
 #include "/opt/gurobi702/linux64/include/gurobi_c++.h"
 #include "../../../floorplan/engine/include/zynq_model.h"
+#include <fstream>
 
 //Gurobi data types
 
@@ -13,6 +14,7 @@ typedef vector<GRBVar3DArray>   GRBVar4DArray;
 using namespace std;
 
 #define MAX_SLOTS 100
+
 
 static unsigned long H, W;
 static unsigned long num_slots;
@@ -45,6 +47,11 @@ vector <vector <unsigned long>> conn_matrix = vector <vector<unsigned long>> (MA
 unsigned long num_conn_slots;
 
 Vecpos fs(MAX_SLOTS);
+
+string base_log_address = "/usr/local/src/floorplan/log/";
+unsigned long run_offset;
+int util;
+int num_run;
 
 int solve_milp_virtex_5(param_from_solver *to_sim)
 {
@@ -181,7 +188,7 @@ int solve_milp_virtex_5(param_from_solver *to_sim)
             clb[i] = each_slot;
 
             for(k = 0; k < 2; k++)
-                clb[i][k] = model.addVar(0.0, clb_max, 0.0, GRB_CONTINUOUS);
+                clb[i][k] = model.addVar(0.0, clb_max, 0.0, GRB_INTEGER);
         }
 
        /**********************************************************************
@@ -202,7 +209,7 @@ int solve_milp_virtex_5(param_from_solver *to_sim)
             bram[i] = each_slot;
 
             for(k = 0; k < 2; k++)
-                bram[i][k] = model.addVar(0.0, bram_max, 0.0, GRB_CONTINUOUS);
+                bram[i][k] = model.addVar(0.0, bram_max, 0.0, GRB_INTEGER);
         }
 //#ifdef dspp
         /**********************************************************************
@@ -223,7 +230,7 @@ int solve_milp_virtex_5(param_from_solver *to_sim)
             dsp[i] = each_slot;
 
             for(k = 0; k < 2; k++)
-                dsp[i][k] = model.addVar(0.0, dsp_max, 0.0, GRB_CONTINUOUS);
+                dsp[i][k] = model.addVar(0.0, dsp_max, 0.0, GRB_INTEGER);
         }
 //#endif
         /**********************************************************************
@@ -863,8 +870,6 @@ int solve_milp_virtex_5(param_from_solver *to_sim)
                                                //(54 * seg[0][i][k][s] + (x[i][k] - 62 * seg[0][i][k][s]) * 1)) ;
 */
 
-                        cout << "seg section" << endl;
-
                for( k = 0; k < 2; k++) {
                 l = 0;
                 model.addConstr(x[i][k] >= clb[i][k] - BIG_M * (1 - z[0][i][k][l++]), "16");
@@ -1224,9 +1229,6 @@ int solve_milp_virtex_5(param_from_solver *to_sim)
             obj_wasted_dsp  += wasted[i][2];
         }
 
-
-        cout <<"added opt" <<endl;
-
         if(num_conn_slots > 0) {
         for(i = 0; i < num_conn_slots; i++) {
                 dist_0 = conn_matrix[i][0] - 1;
@@ -1242,9 +1244,12 @@ int solve_milp_virtex_5(param_from_solver *to_sim)
             wl_max += conn_matrix[i][2] * (W + H * 20);
         }
 
-        cout<< "W H and wl max is " << W << " " << H * 20 << " "<< wl_max <<endl;
-}
-         model.setObjective((obj_x + obj_y ) / wl_max + 0.1 * obj_wasted_clb, GRB_MINIMIZE);
+        //cout<< "W H and wl max is " << W << " " << H * 20 << " "<< wl_max <<endl;
+
+        }
+
+        cout <<"added opt" <<endl;
+         model.setObjective(((obj_x + obj_y) / wl_max) , GRB_MINIMIZE);
          //model.setObjective(obj_wasted_clb,  GRB_MINIMIZE);
         //model.setObjective(obj_wasted_bram, GRB_MINIMIZE);
         // model.setObjective(obj_wasted_dsp,  GRB_MINIMIZE);
@@ -1257,6 +1262,11 @@ int solve_milp_virtex_5(param_from_solver *to_sim)
         *****************************************************************************/
         model.set(GRB_IntParam_Threads, 8);
         model.set(GRB_DoubleParam_TimeLimit, 1800);
+        model.set(GRB_StringParam_LogFile, base_log_address + "reqs_" +
+                  to_string(run_offset) + "_" +
+                  to_string(util) + "_" +
+                  to_string(num_run) + ".log");
+
         model.optimize();
         wasted_clb_v5 = 0;
         wasted_bram_v5 = 0;
@@ -1264,6 +1274,8 @@ int solve_milp_virtex_5(param_from_solver *to_sim)
         unsigned long w_x = 0, w_y = 0;
 
         status = model.get(GRB_IntAttr_Status);
+
+
 
         if(status == GRB_OPTIMAL || status == GRB_TIME_LIMIT) {
             cout << "---------------------------------------------------------------------\
@@ -1418,27 +1430,33 @@ int virtex_start_optimizer_v5(param_to_solver *param, param_from_solver *to_sim)
     //conn_matrix = (param->conn_vector);
     num_conn_slots = (param->num_connected_slots);
 
-    //num_forbidden_slots = param->forbidden_slots;
-
     unsigned long i;
 
     for(i = 0; i < num_slots; i++) {
         clb_req[i]  = (*param->clb)[i];
         bram_req[i] = (*param->bram)[i];
         dsp_req[i]  = (*param->dsp)[i];
-        //cout << "clb " << clb_req[i] << " bram " << bram_req[i] << "dsp " << dsp_req[i] << endl;
+        run_offset  = param->num_slot_offset;
+        util        = param->util;
+        num_run     = param->num_run;
+
+        cout << "clb " << clb_req[i] << " bram " << bram_req[i] << "dsp " << dsp_req[i] << endl;
     }
+
+    cout << "in solver " << run_offset << " num run " << num_run << " util " << util << "num conn " << num_conn_slots << endl;
 
     for(i = 0; i < num_conn_slots; i++) {
         for(k = 0; k < 3; k++)
             conn_matrix[i][k] = (*(param->conn_vector)) [i][k];
     }
 
+    cout << "finished copying" << endl;
         m =0;
-    for(i = 0; i < num_conn_slots; i++) {
-        m =0;
- //       for(k = 0; k < 3; k++)
-        temp = conn_matrix[i][m++] + conn_matrix[i][m++] + conn_matrix[i][m++];
+
+        for(i = 0; i < num_conn_slots; i++) {
+            m =0;
+    //       for(k = 0; k < 3; k++)
+            temp = conn_matrix[i][m++] + conn_matrix[i][m++] + conn_matrix[i][m++];
             cout << "inside solver " << temp << /*m << conn_matrix[i][m++] << " m " << m << conn_matrix[i][m++] << " m" << m << << conn_matrix[i][k] <<*/endl;
             //k++;
             //cout << "k is " << k /*conn_matrix[i][k++] */<< endl;
@@ -1450,7 +1468,8 @@ int virtex_start_optimizer_v5(param_to_solver *param, param_from_solver *to_sim)
         fs[i] = (*param->fbdn_slot)[i];
         cout <<"forbidden " << num_forbidden_slots << " " << fs[i].x << " " << fs[i].y << " " << fs[i].h << " " << fs[i].w <<endl;
     }
-    cout << "finished copying" << endl;
+
+
 
     status = solve_milp_virtex_5(to_sim);
 

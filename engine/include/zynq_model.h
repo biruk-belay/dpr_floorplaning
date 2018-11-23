@@ -19,6 +19,9 @@ typedef struct {
     unsigned long num_rows;
     unsigned long width;
     unsigned long num_connected_slots;
+    unsigned long  num_slot_offset;
+    int num_run;
+    int util;
     Vec *clb;
     Vec *bram;
     Vec *dsp;
@@ -31,6 +34,7 @@ typedef  struct{
     std::vector<int> *y;
     std::vector<int> *w;
     std::vector<int> *h;
+    float *wire_length;
 }param_from_solver;
 
 int zynq_start_optimizer(param_to_solver *, param_from_solver *);
